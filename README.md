@@ -14,7 +14,7 @@ end
 
 ## Configuration
 
-Option 1, we can set the authorization configuration in `config` file as a global setting, e.g.
+Set the authorization configuration in `config` file as a global setting, e.g.
 
 ```elixir
 config :ex_aliyun_mns,
@@ -23,11 +23,17 @@ config :ex_aliyun_mns,
   host: "https://xxxx.mns.us-east-1.aliyuncs.com"
 ```
 
-Option 2, we can dynamically set or override the authorization configuration when execute operation, e.g.
+Or, dynamically set or override the authorization configuration when execute operation via `config_overrides` option, e.g.
 
 ```elixir
-ExAliyun.MNS.create_queue("test-queue", 
-  access_key_id: "", access_key_secret: "", host: "")
+ExAliyun.MNS.create_queue(
+  "test-queue",
+  config_overrides: [
+    access_key_id: "",
+    access_key_secret: "",
+    host: ""
+  ]
+)
 ```
 
 ## Usage
