@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Topic xmlns="http://mns.aliyuncs.com/doc/v1/">
+  <% maximum_message_size = Map.get(topic, :maximum_message_size) %>
+  <% logging_enabled = Map.get(topic, :logging_enabled) %>
+  <%= if is_integer(maximum_message_size) do %>
+  <MaximumMessageSize><%= maximum_message_size %></MaximumMessageSize>
+  <% end %>
+  <%= if logging_enabled == true do %>
+    <LoggingEnabled>True</LoggingEnabled>
+  <% else %>
+    <LoggingEnabled>False</LoggingEnabled>
+  <% end %>
+</Topic>

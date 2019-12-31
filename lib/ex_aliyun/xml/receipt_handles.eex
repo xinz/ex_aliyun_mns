@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ReceiptHandles xmlns="http://mns.aliyuncs.com/doc/v1/">
+  <%= Enum.map(receipt_handles, fn receipt_handle -> %>
+    <ReceiptHandle><%= receipt_handle %></ReceiptHandle>
+  <% end) %>
+</ReceiptHandles>

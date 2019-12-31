@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Message xmlns="http://mns.aliyuncs.com/doc/v1/">
+  <% delay_seconds = Map.get(message, :delay_seconds) %>
+  <% priority = Map.get(message, :priority) %>
+  <% message_body = Map.get(message, :message_body) %>
+  <MessageBody><%= message_body %></MessageBody>
+  <%= if is_integer(delay_seconds) do %>
+    <DelaySeconds><%= delay_seconds %></DelaySeconds>
+  <% end %>
+  <%= if is_integer(priority) do %>
+    <Priority><%= priority %></Priority>
+  <% end %>
+</Message>

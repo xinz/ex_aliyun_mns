@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Subscription xmlns="http://mns.aliyuncs.com/doc/v1/">
+  <% endpoint = Map.get(subscription, :endpoint) %>
+  <%= if endpoint != nil do %>
+    <Endpoint><%= endpoint %></Endpoint>
+  <% end %>
+  <% notify_strategy = Map.get(subscription, :notify_strategy) %>
+  <%= if notify_strategy in ["BACKOFF_RETRY", "EXPONENTIAL_DECAY_RETRY"] do %>
+    <NotifyStrategy><%= notify_strategy %></NotifyStrategy>
+  <% end %>
+  <% notify_content_format = Map.get(subscription, :notify_content_format) %>
+  <%= if notify_content_format in ["XML", "JSON", "SIMPLIFIED"] do %>
+    <NotifyContentFormat><%= notify_content_format %></NotifyContentFormat>
+  <% end %>
+  <% filter_tag = Map.get(subscription, :filter_tag) %>
+  <%= if is_bitstring(filter_tag) do %>
+    <FilterTag><%= filter_tag %></FilterTag>
+  <% end %>
+</Subscription>

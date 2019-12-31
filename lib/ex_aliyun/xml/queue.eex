@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Queue xmlns="http://mns.aliyuncs.com/doc/v1/">
+  <% delay_seconds = Map.get(queue, :delay_seconds) %>
+  <% maximum_message_size = Map.get(queue, :maximum_message_size) %>
+  <% message_retention_period = Map.get(queue, :message_retention_period) %>
+  <% visibility_timeout = Map.get(queue, :visibility_timeout) %>
+  <% polling_wait_seconds = Map.get(queue, :polling_wait_seconds) %>
+  <% logging_enabled = Map.get(queue, :logging_enabled) %>
+  <%= if is_integer(delay_seconds) do %>
+    <DelaySeconds><%= delay_seconds %></DelaySeconds>
+  <% end %>
+  <%= if is_integer(maximum_message_size) do %>
+    <MaximumMessageSize><%= maximum_message_size %></MaximumMessageSize>
+  <% end %>
+  <%= if is_integer(message_retention_period) do %>
+    <MessageRetentionPeriod><%= message_retention_period %></MessageRetentionPeriod>
+  <% end %>
+  <%= if is_integer(visibility_timeout) do %>
+    <VisibilityTimeout><%= visibility_timeout %></VisibilityTimeout>
+  <% end %>
+  <%= if is_integer(polling_wait_seconds) do %>
+    <PollingWaitSeconds><%= polling_wait_seconds %></PollingWaitSeconds>
+  <% end %>
+  <%= if logging_enabled == true do %>
+    <LoggingEnabled>True</LoggingEnabled>
+  <% else %>
+    <LoggingEnabled>False</LoggingEnabled>
+  <% end %>
+</Queue>
