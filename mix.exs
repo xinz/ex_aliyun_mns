@@ -24,9 +24,9 @@ defmodule ExAliyun.MNS.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:tesla, "~> 1.3"},
+      {:tesla, "~> 1.3.1"},
       {:timex, "~> 3.6"},
-      {:mint, "~> 1.0", override: true},
+      {:mint, "~> 1.0"},
       {:castore, "~> 0.1"},
       {:sax_map, "~> 0.1"},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false}

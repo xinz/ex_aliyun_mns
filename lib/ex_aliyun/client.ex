@@ -71,7 +71,7 @@ defmodule ExAliyun.MNS.Client do
   def request(%{action: :receive_message, params: %{queue_url: queue_url, number: number, wait_time_seconds: wait_time_seconds}}, config) do
     query = format_query([{"numOfMessages", number}, {"waitseconds", wait_time_seconds}])
 
-    opts = if wait_time_seconds != nil, do: [adapter: [timeout: (wait_time_seconds + 2) * 1000]], else: []
+    opts = if wait_time_seconds != nil, do: [timeout: (wait_time_seconds + 2) * 1000], else: []
 
     config
     |> new_client(opts)
@@ -171,7 +171,7 @@ defmodule ExAliyun.MNS.Client do
     |> parse_response(:publish_message)
   end
 
-  defp new_client(config, opts \\ [adapter: [timeout: @timeout_seconds]]) do
+  defp new_client(config, opts \\ [timeout: @timeout_seconds]) do
     middleware = [
       {Tesla.Middleware.BaseUrl, config.host},
       {ExAliyun.MNS.Http.Middleware, config}
