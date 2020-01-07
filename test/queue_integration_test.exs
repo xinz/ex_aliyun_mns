@@ -64,6 +64,8 @@ defmodule ExAliyunMNSTest.Queue.Integration do
       {:ok, _response} = MNS.delete_queue(queue_url)
     end)
 
+    Process.sleep(2_000)
+
     {:ok, queue_url: queue_url}
   end
 
