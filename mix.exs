@@ -9,6 +9,7 @@ defmodule ExAliyun.MNS.MixProject do
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      docs: docs(),
       description: "Alibaba Cloud Message Notification Service (MNS) SDK",
       package: package()
     ]
@@ -39,6 +40,16 @@ defmodule ExAliyun.MNS.MixProject do
       maintainers: ["Xin Zou"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/xinz/ex_aliyun_mns"}
+    ]
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      formatter_opts: [gfm: true],
+      extras: [
+       "README.md"
+      ]
     ]
   end
 end
