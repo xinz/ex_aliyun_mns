@@ -47,11 +47,24 @@ defmodule ExAliyun.MNS do
   @doc """
   Send HTTP request, NO need to directly call this function by default.
 
+  The following options all are optional, but they are requeired to identify request's authorization in
+  every operation request, we can set them as a global config:
+
+  ```elixir
+  config :ex_aliyun_mns,
+    access_key_id: "",
+    access_key_secret: "",
+    host: ""
+  ```
+
+  Or set these option(s) via `config_overrides` option to dynamically set/override in each operation request.
+
   ## Options
 
-    * `access_key_id`, the access key id of Alibaba Cloud RAM for MNS;
-    * `access_key_secret`, the access key secret of Alibaba Cloud RAM for MNS;
-    * `host`, optional, the MNS's region host to request, can be found in MNS's console, e.g. "https://xxxx.mns.us-east-1.aliyuncs.com".
+    * `access_key_id`, optional, the access key id of Alibaba Cloud RAM for MNS;
+    * `access_key_secret`, optional, the access key secret of Alibaba Cloud RAM for MNS;
+    * `host`, optional, the MNS's regions to request, the available regions can be found in MNS's console,
+      e.g. "https://xxxx.mns.us-east-1.aliyuncs.com".
   """
   @spec request(operation :: Operation.t(), config_overrides :: Keyword.t()) :: result
   def request(operation, config_overrides \\ []) do
