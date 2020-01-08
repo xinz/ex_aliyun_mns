@@ -65,25 +65,14 @@ defmodule ExAliyun.MNS.Queue do
     operation(queue_url, "BatchDeleteMessage", params: params)
   end
 
-  @doc """
-  Read message(s) from a MNS Queue
-
-  [Aliyun API Docs](https://help.aliyun.com/document_detail/35136.html)
-
-  ## Options
-
-    * `:wait_time_seconds`, optional, the maximum wait time for polling message in current request, settable value range is 0..30 (seconds),
-    if not set will use Queue's `polling_wait_seconds` attribute (see `create_queue`) as default.
-    * `:number`, optional, receive up to 16 messages ([doc](https://help.aliyun.com/document_detail/35137.html)) from a MNS Queue in a single request, by default as 1.
-  """
   @spec receive_message(queue_url :: String.t(), opts :: Keyword.t()) :: Operation.t()
   def receive_message(queue_url, opts \\ []) do
-    params = Map.merge(%{wait_time_seconds: nil, number: nil}, Map.new(opts))
+    params = Map.new(opts)
     operation(queue_url, "ReceiveMessage", params: params)
   end
 
   @spec peek_message(queue_url :: String.t(), opts :: Keyword.t()) :: Operation.t()
-  def peek_message(queue_url, opts \\ [number: nil]) do
+  def peek_message(queue_url, opts \\ []) do
     params = Map.new(opts)
     operation(queue_url, "PeekMessage", params: params)
   end

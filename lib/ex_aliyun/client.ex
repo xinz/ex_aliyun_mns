@@ -66,7 +66,10 @@ defmodule ExAliyun.MNS.Client do
     |> new_client()
     |> delete("#{queue_url}/messages", body: body)
   end
-  defp send_request(%{action: "ReceiveMessage", params: %{queue_url: queue_url, number: number, wait_time_seconds: wait_time_seconds}}, config) do
+  defp send_request(%{action: "ReceiveMessage", params: %{queue_url: queue_url} = params}, config) do
+    number = Map.get(params, :number)
+    wait_time_seconds = Map.get(params, :wait_time_seconds)
+
     query = format_query([{"numOfMessages", number}, {"waitseconds", wait_time_seconds}])
 
     opts = if wait_time_seconds != nil, do: [timeout: (wait_time_seconds + 2) * 1000], else: []
@@ -75,7 +78,8 @@ defmodule ExAliyun.MNS.Client do
     |> new_client(opts)
     |> get("#{queue_url}/messages", query: query)
   end
-  defp send_request(%{action: "PeekMessage", params: %{queue_url: queue_url, number: number}}, config) do
+  defp send_request(%{action: "PeekMessage", params: %{queue_url: queue_url} = params}, config) do
+    number = Map.get(params, :number)
     query = format_query([{"peekonly", true}, {"numOfMessages", number}])
 
     config
