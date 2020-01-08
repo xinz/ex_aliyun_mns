@@ -2,7 +2,7 @@ defmodule ExAliyun.MNS do
   @moduledoc """
   [Alibaba Cloud Message Service](https://www.alibabacloud.com/help/doc-detail/27414.htm)
 
-  ## for Queue APIs
+  ## Queue APIs
 
     * `create_queue/2`
     * `set_queue_attributes/2`
@@ -16,7 +16,7 @@ defmodule ExAliyun.MNS do
     * `peek_message/2`
     * `change_message_visibility/4`
   
-  ## for Topic APIs
+  ## Topic APIs
   
     * `create_topic/2`
     * `set_topic_attributes/2`
@@ -45,12 +45,13 @@ defmodule ExAliyun.MNS do
   @type result :: {:ok, map()} | {:error, map()} | {:error, term()}
 
   @doc """
+  Send HTTP request, NO need to directly call this function by default.
 
-  `config_overrides` options:
+  ## Options
 
-    * `access_key_id`;
-    * `access_key_secret`;
-    * `host`, for example: "https://xxxx.mns.us-east-1.aliyuncs.com"
+    * `access_key_id`, the access key id of Alibaba Cloud RAM for MNS;
+    * `access_key_secret`, the access key secret of Alibaba Cloud RAM for MNS;
+    * `host`, optional, the MNS's region host to request, can be found in MNS's console, e.g. "https://xxxx.mns.us-east-1.aliyuncs.com".
   """
   @spec request(operation :: Operation.t(), config_overrides :: Keyword.t()) :: result
   def request(operation, config_overrides \\ []) do
@@ -64,13 +65,14 @@ defmodule ExAliyun.MNS do
 
   ## Options
 
-    * `:delay_seconds`, optional, default is 0;
-    * `:maximum_message_size`, optional, default is 65536 (64 KB);
-    * `:message_retention_period`, optional, default is 604_800 (7 days);
-    * `:visibility_timeout`, optional, valid value range in 1..43200 (12 hours), by default is 30 seconds;
-    * `:polling_wait_seconds`, optional, default is 0;
-    * `:logging_enabled`, optional, default is false.
-
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details;
+    * `:delay_seconds`, optional, message sent to the queue can be consumed after `delay_seconds` seconds, the valid value range in 0..604_800 (7 days), by default is 0 second;
+    * `:maximum_message_size`, optional, maximum body length of a message sent to the queue, measured in bytes, by default is 65536 (64 KB);
+    * `:message_retention_period`, optional, maximum lifetime of the message in the queue, measured in seconds,
+       the valid value range in 60..604_800 seconds, by default is 259_200 (3 days);
+    * `:visibility_timeout`, optional, the valid value range in 1..43200 seconds (12 hours), by default is 30 seconds;
+    * `:polling_wait_seconds`, optional, the valid value range in 0..30 seconds, by default is 0 second;
+    * `:logging_enabled`, optional, whether to enable MNS server logging, by default is false.
   """
   @spec create_queue(queue_name :: String.t(), opts :: Keyword.t()) :: result
   def create_queue(queue_name, opts \\ []) do
@@ -78,12 +80,38 @@ defmodule ExAliyun.MNS do
     Queue.create(queue_name, opts) |> request(config_overrides)
   end
 
+  @doc """
+  Modify attributes of a message queue.
+
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35130.htm)
+
+  ## Options
+
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details;
+    * `:delay_seconds`, optional, message sent to the queue can be consumed after `delay_seconds` seconds, the valid value range in 0..604_800 (7 days), by default is 0 second;
+    * `:maximum_message_size`, optional, maximum body length of a message sent to the queue, measured in bytes,
+       by default is 65536 (64 KB);
+    * `:message_retention_period`, optional, maximum lifetime of the message in the queue, measured in seconds,
+       the valid value range in 60..604_800 seconds, by default is 259_200 (3 days);
+    * `:visibility_timeout`, optional, the valid value range in 1..43200 seconds (12 hours), by default is 30 seconds;
+    * `:polling_wait_seconds`, optional, the valid value range in 0..30 seconds, by default is 0 second;
+    * `:logging_enabled`, optional, whether to enable MNS server logging, by default is false.
+  """
   @spec set_queue_attributes(queue_url :: String.t(), opts :: Keyword.t()) :: result
   def set_queue_attributes(queue_url, opts \\ []) do
     {config_overrides, opts} = Keyword.pop(opts, :config_overrides, [])
     Queue.set_queue_attributes(queue_url, opts) |> request(config_overrides)
   end
 
+  @doc """
+  Get the attributes of a message queue.
+
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35131.htm)
+
+  ## Options
+
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details.
+  """
   @spec get_queue_attributes(queue_url :: String.t(), opts :: Keyword.t()) :: result
   def get_queue_attributes(queue_url, opts \\ []) do
     config_overrides = Keyword.get(opts, :config_overrides, [])
@@ -91,12 +119,16 @@ defmodule ExAliyun.MNS do
   end
 
   @doc """
+  List the available message queues.
+
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35133.htm)
 
   ## Options
   
-    * `:queue_name_prefix`
-    * `:number`
-    * `:marker`
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details;
+    * `:queue_name_prefix`, optional, search for the queue name starting with this prefix;
+    * `:number`, optional, maximum number of results returned for a single request, the valid value range in 1..1_000, by default is 1_000;
+    * `:marker`, optional, a similar pagination cursor when list a large queues list, which is acquired from the `NextMarker` returned in the previous request.
   """
   @spec list_queues(opts :: Keyword.t()) :: result 
   def list_queues(opts \\ []) do
@@ -104,6 +136,15 @@ defmodule ExAliyun.MNS do
     Queue.list_queues(opts) |> request(config_overrides)
   end
 
+  @doc """
+  Delete an existed message queue.
+
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35132.htm)
+
+  ## Options
+
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details.
+  """
   @spec delete_queue(queue_url :: String.t(), opts :: Keyword.t()) :: result
   def delete_queue(queue_url, opts \\ []) do
     config_overrides = Keyword.get(opts, :config_overrides, [])
@@ -117,9 +158,9 @@ defmodule ExAliyun.MNS do
 
   ## Options
   
-    * `:delay_seconds`
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details;
+    * `:delay_seconds`, optional, message sent to the queue can be consumed after `delay_seconds` seconds, the valid value range in 0..604_800 (7 days), by default is 0 second;
     * `:priority`
-
   """
   @spec send_message(queue_url :: String.t(), message_body :: String.t(), opts :: Keyword.t()) :: result
   def send_message(queue_url, message_body, opts \\ []) do
@@ -129,7 +170,7 @@ defmodule ExAliyun.MNS do
 
   @type mns_batch_message :: String.t() | [
       {:message_body, String.t()},
-      {:delay_seconds, 0..604800},
+      {:delay_seconds, 0..604_800},
       {:priority, 1..16}
     ]
 
@@ -137,6 +178,10 @@ defmodule ExAliyun.MNS do
   Send up to 16 messages to a MNS Queue in a single request
 
   [Aliyun API Docs](https://help.aliyun.com/document_detail/35135.html)
+
+  ## Options
+
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details.
   """
   @spec batch_send_message(queue_url :: String.t(), messages :: [mns_batch_message]) :: result
   def batch_send_message(queue_url, messages, opts \\ []) when is_list(messages) do
@@ -148,6 +193,10 @@ defmodule ExAliyun.MNS do
   Delete a message from a MNS Queue
 
   [Aliyun API Docs](https://help.aliyun.com/document_detail/35138.html)
+
+  ## Options
+
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details.
   """
   @spec delete_message(queue_url :: String.t(), receipt_handle :: String.t(), opts :: Keyword.t()) :: result
   def delete_message(queue_url, receipt_handle, opts \\ []) do
@@ -159,6 +208,10 @@ defmodule ExAliyun.MNS do
   Delete a list of messages from a MNS Queue in a single request
 
   [Aliyun API Docs](https://help.aliyun.com/document_detail/35139.html)
+
+  ## Options
+
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details.
   """
   @spec batch_delete_message(queue_url :: String.t(), receipt_handles :: [String.t()], opts :: Keyword.t()) :: result
   def batch_delete_message(queue_url, receipt_handles, opts \\ []) do
@@ -173,8 +226,9 @@ defmodule ExAliyun.MNS do
 
   ## Options
 
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details;
     * `:wait_time_seconds`, optional, the maximum wait time for polling message in current request, settable value range is 0..30 (seconds),
-    if not set will use Queue's `polling_wait_seconds` attribute (see `create_queue`) as default.
+    if not set this option will use Queue's `polling_wait_seconds` attribute (see `create_queue/2`) as default.
     * `:number`, optional, receive up to 16 messages ([doc](https://help.aliyun.com/document_detail/35137.html)) from a MNS Queue in a single request, by default as 1.
   """
   @spec receive_message(queue_url :: String.t(), opts :: Keyword.t()) :: result
@@ -190,6 +244,7 @@ defmodule ExAliyun.MNS do
 
   ## Options
   
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details;
     * `:number`, optional, maximum number of messages can be viewed for the current operation ([see BatchPeekMessage doc](https://www.alibabacloud.com/help/doc-detail/35141.htm)), the default number is 1, the maximum number is 16.
   """
   @spec peek_message(queue_url :: String.t(), opts :: Keyword.t()) :: result
@@ -202,6 +257,10 @@ defmodule ExAliyun.MNS do
   Modify the next consumable time of a message which has been consumed and is still in `inactive` status. After `VisibilityTimeout` of the message is modified successfully, a new ReceiptHandle will be returned.
 
   [Aliyun API Docs](https://www.alibabacloud.com/help/doc-detail/35142.htm)
+
+  ## Options
+
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details.
   """
   @spec change_message_visibility(queue_url :: String.t(), receipt_handle :: String.t(), visibility_timeout :: integer(), opts :: Keyword.t()) :: result
   def change_message_visibility(queue_url, receipt_handle, visibility_timeout, opts \\ []) do
@@ -217,9 +276,9 @@ defmodule ExAliyun.MNS do
 
   ## Options
 
-    * `:maximum_message_size`, optional, default is 65536 (64 KB);
-    * `:logging_enabled`, optional, default is false
-    * `:config_overrides`, optional, see `request/2` for details
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details;
+    * `:maximum_message_size`, optional, maximum body length of a message sent to the queue, measured in bytes, by default is 65536 (64 KB);
+    * `:logging_enabled`, optional, whether to enable MNS server logging, by default is false.
   """
   @spec create_topic(topic_name :: String.t(), opts :: Keyword.t()) :: result
   def create_topic(topic_name, opts \\ []) do
@@ -234,9 +293,9 @@ defmodule ExAliyun.MNS do
 
   ## Options
 
-    * `:maximum_message_size`, optional;
-    * `:logging_enabled`, optional;
-    * `:config_overrides`, optional, see `request/2` for details;
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details;
+    * `:maximum_message_size`, optional, maximum body length of a message sent to the queue, measured in bytes, by default is 65536 (64 KB);
+    * `:logging_enabled`, optional, whether to enable MNS server logging, by default is false.
   """
   @spec set_topic_attributes(topic_url :: String.t(), opts :: Keyword.t()) :: result
   def set_topic_attributes(topic_url, opts) do
@@ -249,6 +308,10 @@ defmodule ExAliyun.MNS do
   Get the attributes of an existing topic.
 
   [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140711.htm)
+
+  ## Options
+
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details.
   """
   @spec get_topic_attributes(topic_url :: String.t()) :: result
   def get_topic_attributes(topic_url, opts \\ []) do
@@ -261,6 +324,10 @@ defmodule ExAliyun.MNS do
   Delete an existing topic.
 
   [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140713.htm)
+
+  ## Options
+
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details.
   """
   @spec delete_topic(topic_url :: String.t()) :: result
   def delete_topic(topic_url, opts \\ []) do
@@ -276,9 +343,10 @@ defmodule ExAliyun.MNS do
 
   ## Options
 
-    * `:topic_name_prefix`
-    * `:number`
-    * `:marker`
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details;
+    * `:topic_name_prefix`, optional, search for the topic name starting with this prefix;
+    * `:number`, optional, maximum number of results returned for a single request, the valid value range in 1..1_000, by default is 1_000;
+    * `:marker`, optional, a similar pagination cursor when list a large topics list, which is acquired from the `NextMarker` returned in the previous request.
   """
   @spec list_topics(opts :: Keyword.t()) :: result
   def list_topics(opts \\ []) do
@@ -293,6 +361,7 @@ defmodule ExAliyun.MNS do
 
   ## Options
 
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details;
     * `:filter_tag`, optional, a string no more than 16 characters, there is no message filter set by default;
     * `:notify_strategy`, optional, `"BACKOFF_RETRY"` or `"EXPONENTIAL_DECAY_RETRY"`, as `"BACKOFF_RETRY"` by default;
     * `:notify_content_format`, optional, `"XML"`, `"JSON"`, or `"SIMPLIFIED"`, as `"XML"` by default
@@ -313,6 +382,10 @@ defmodule ExAliyun.MNS do
   can be set as `"BACKOFF_RETRY"` or `"EXPONENTIAL_DECAY_RETRY"`
 
   [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140719.htm)
+
+  ## Options
+
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details.
   """
   @spec set_subscription_attributes(
           topic_url :: String.t(),
@@ -332,6 +405,10 @@ defmodule ExAliyun.MNS do
   Get subscription attributes
 
   [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140720.htm)
+
+  ## Options
+
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details.
   """
   @spec get_subscription_attributes(topic_url :: String.t(), subscription_name :: String.t(), opts :: Keyword.t()) :: result
   def get_subscription_attributes(topic_url, subscription_name, opts \\ []) do
@@ -346,6 +423,10 @@ defmodule ExAliyun.MNS do
   Cancel a subscription.
 
   [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140721.htm)
+
+  ## Options
+
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details.
   """
   @spec unsubscribe(topic_url :: String.t(), subscription_name :: String.t(), opts :: Keyword.t()) :: result
   def unsubscribe(topic_url, subscription_name, opts \\ []) do
@@ -361,9 +442,10 @@ defmodule ExAliyun.MNS do
 
   ## Options
   
-    * `:subscription_name_prefix`, optional
-    * `:number`, optional
-    * `:marker`, optional
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details;
+    * `:subscription_name_prefix`, optional, search for the subscription name starting with this prefix;
+    * `:number`, optional, maximum number of results returned for a single request, the valid value range in 1..1_000, by default is 1_000;
+    * `:marker`, optional, a similar pagination cursor when list a large subscriptions list, which is acquired from the `NextMarker` returned in the previous request.
   """
   @spec list_subscriptions(topic_url :: String.t(), opts :: Keyword.t()) :: result
   def list_subscriptions(topic_url, opts \\ []) do
@@ -379,6 +461,7 @@ defmodule ExAliyun.MNS do
 
   ## Options
   
+    * `:config_overrides` options, optional, the options in `config_overrides`, please see `request/2` for details;
     * `:message_tag`, optional, a string no more than 16 characters, there is no message tag set by default;
     * `:message_attributes`, optional, a string of message attributes, only be useable for email or SMS push, please see API documents for details.
   """
