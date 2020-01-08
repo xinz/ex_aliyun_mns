@@ -1,7 +1,7 @@
 defmodule ExAliyun.MNS.Parser do
   @moduledoc false
 
-  def parse({:ok, %{body: nil, url: url} = response}, :create_queue) do
+  def parse({:ok, %{body: nil, url: url} = response}, "CreateQueue") do
     body = %{
       "request_id" => extract_request_id(response.headers),
       "queue_url" => url
@@ -10,7 +10,7 @@ defmodule ExAliyun.MNS.Parser do
     {:ok, response}
   end
 
-  def parse({:ok, %{body: nil, url: url} = response}, :create_topic) do
+  def parse({:ok, %{body: nil, url: url} = response}, "CreateTopic") do
     body = %{
       "request_id" => extract_request_id(response.headers),
       "topic_url" => url

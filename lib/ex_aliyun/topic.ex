@@ -10,28 +10,28 @@ defmodule ExAliyun.MNS.Topic do
       |> Map.new()
       |> Map.put(:topic_name, topic_name)
 
-    operation(nil, :create_topic, params: params)
+    operation(nil, "CreateTopic", params: params)
   end
 
   @spec set_topic_attributes(topic_url :: String.t(), opts :: Keyword.t()) :: Operation.t()
   def set_topic_attributes(topic_url, opts) do
-    operation(topic_url, :set_topic_attributes, params: Map.new(opts))
+    operation(topic_url, "SetTopicAttributes", params: Map.new(opts))
   end
 
   @spec get_topic_attributes(topic_url :: String.t()) :: Operation.t()
   def get_topic_attributes(topic_url) do
-    operation(topic_url, :get_topic_attributes)
+    operation(topic_url, "GetTopicAttributes")
   end
 
   @spec delete(topic_url :: String.t()) :: Operation.t()
   def delete(topic_url) do
-    operation(topic_url, :delete_topic)
+    operation(topic_url, "DeleteTopic")
   end
 
   @spec list_topics(opts :: Keyword.t()) :: Operation.t()
   def list_topics(opts \\ []) do
     headers = ExAliyun.MNS.format_opts_to_headers(opts)
-    operation(nil, :list_topics, headers: headers)
+    operation(nil, "ListTopics", headers: headers)
   end
 
   @spec subscribe(
@@ -47,7 +47,7 @@ defmodule ExAliyun.MNS.Topic do
       |> Map.put(:endpoint, endpoint)
       |> Map.put(:subscription_name, subscription_name)
 
-    operation(topic_url, :subscribe, params: params)
+    operation(topic_url, "Subscribe", params: params)
   end
 
   @spec set_subscription_attributes(
@@ -59,23 +59,23 @@ defmodule ExAliyun.MNS.Topic do
       when notify_strategy == "BACKOFF_RETRY"
       when notify_strategy == "EXPONENTIAL_DECAY_RETRY" do
     params = %{notify_strategy: notify_strategy, subscription_name: subscription_name}
-    operation(topic_url, :set_subscription_attributes, params: params)
+    operation(topic_url, "SetSubscriptionAttributes", params: params)
   end
 
   @spec get_subscription_attributes(topic_url :: String.t(), subscription_name :: String.t()) :: Operation.t()
   def get_subscription_attributes(topic_url, subscription_name) do
-    operation(topic_url, :get_subscription_attributes, params: %{subscription_name: subscription_name})
+    operation(topic_url, "GetSubscriptionAttributes", params: %{subscription_name: subscription_name})
   end
 
   @spec unsubscribe(topic_url :: String.t(), subscription_name :: String.t()) :: Operation.t()
   def unsubscribe(topic_url, subscription_name) do
-    operation(topic_url, :unsubscribe, params: %{subscription_name: subscription_name})
+    operation(topic_url, "Unsubscribe", params: %{subscription_name: subscription_name})
   end
 
   @spec list_subscriptions(topic_url :: String.t(), opts :: Keyword.t()) :: Operation.t()
   def list_subscriptions(topic_url, opts \\ []) do
     headers = ExAliyun.MNS.format_opts_to_headers(opts)
-    operation(topic_url, :list_subscriptions, headers: headers)
+    operation(topic_url, "ListSubscriptions", headers: headers)
   end
 
   @spec publish_message(topic_url :: String.t(), message_body :: String.t(), opts :: Keyword.t()) :: Operation.t()
@@ -84,7 +84,7 @@ defmodule ExAliyun.MNS.Topic do
       opts
       |> Map.new()
       |> Map.put(:message_body, message_body)
-    operation(topic_url, :publish_message, params: params)
+    operation(topic_url, "PublishMessage", params: params)
   end
 
   defp operation(topic_url, action, opts \\ [])
