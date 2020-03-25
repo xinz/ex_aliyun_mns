@@ -29,7 +29,7 @@ defmodule ExAliyun.MNS.MixProject do
       {:timex, "~> 3.6"},
       {:mint, "~> 1.0"},
       {:castore, "~> 0.1"},
-      {:sax_map, "~> 0.1"},
+      {:sax_map, "~> 0.2"},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false}
     ]
   end
