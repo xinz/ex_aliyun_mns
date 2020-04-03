@@ -1,7 +1,7 @@
 defmodule ExAliyun.MNS.Queue do
   @moduledoc false
 
-  alias ExAliyun.MNS.Operation
+  alias ExAliyun.MNS.{Operation, Parser}
 
   @spec create(queue_name :: String.t(), opts :: Keyword.t()) :: Operation.t()
   def create(queue_name, opts \\ []) do
@@ -39,15 +39,17 @@ defmodule ExAliyun.MNS.Queue do
     params =
       opts
       |> Map.new()
-      |> Map.put(:message_body, message_body)
+      |> Map.put(:message_body, Parser.encode_message_body(message_body))
     operation(queue_url, "SendMessage", params: params)
   end
 
   @spec batch_send_message(queue_url :: String.t(), messages :: [ExAliyun.MNS.mns_batch_message]) :: Operation.t()
   def batch_send_message(queue_url, messages) when is_list(messages) do
     messages = Enum.map(messages, fn
-      message when is_bitstring(message) -> %{message_body: message}
-      message when is_list(message) -> Map.new(message)
+      message when is_bitstring(message) ->
+        %{message_body: Parser.encode_message_body(message)}
+      message when is_list(message) ->
+        Parser.encode_message_body(message) |> Map.new()
     end)
     params = %{messages: messages}
     operation(queue_url, "BatchSendMessage", params: params)

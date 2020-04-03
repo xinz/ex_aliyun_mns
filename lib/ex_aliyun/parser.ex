@@ -25,7 +25,7 @@ defmodule ExAliyun.MNS.Parser do
 
   def parse({:ok, %{body: body, status: status} = response}, _action) when body != nil and (status >= 200 and status < 400) do
     {:ok, body} = SAXMap.from_string(body)
-    response = parse_response(response, body)
+    response = parse_response(response, decode_message_body(body))
     {:ok, response}
   end
 
@@ -37,6 +37,14 @@ defmodule ExAliyun.MNS.Parser do
   end
 
   def parse(value, _), do: value
+
+  def encode_message_body(message_body) when is_bitstring(message_body) do
+    Base.encode64(message_body)
+  end
+  def encode_message_body(message) when is_list(message) do
+    message_body = encode_message_body(message[:message_body])
+    Keyword.put(message, :message_body, message_body)
+  end
 
   defp parse_response(response, body) do
     response
@@ -66,6 +74,28 @@ defmodule ExAliyun.MNS.Parser do
     }
     response = parse_response(response, body)
     {:error, response}
+  end
+
+  defp decode_message_body(%{"Message" => %{"MessageBody" => message_body} = message} = body) do
+    message = Map.put(message, "MessageBody", Base.decode64!(message_body))
+    Map.put(body, "Message", message)
+  end
+  defp decode_message_body(%{"Messages" => %{"Message" => %{"MessageBody" => message_body} = message}} = body) when is_map(message) do
+    message = Map.put(message, "MessageBody", Base.decode64!(message_body))
+    Map.put(body, "Messages", [message])
+  end
+  defp decode_message_body(%{"Messages" => %{"Message" => messages}} = body) when is_list(messages) do
+    messages =
+      Enum.map(messages, fn
+        %{"MessageBody" => message_body} = message ->
+          Map.put(message, "MessageBody", Base.decode64!(message_body))
+        message ->
+          message
+      end)
+    Map.put(body, "Messages", messages)
+  end
+  defp decode_message_body(body) do
+    body
   end
 
 end

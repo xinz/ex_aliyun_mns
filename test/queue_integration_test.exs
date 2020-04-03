@@ -23,7 +23,7 @@ defmodule ExAliyunMNSTest.Queue.Integration do
   end
 
   defp receipt_handles(response) do
-    messages = Map.get(response.body, "Messages") |> Map.get("Message")
+    messages = Map.get(response.body, "Messages")
 
     cond do
       is_map(messages) ->
@@ -64,7 +64,7 @@ defmodule ExAliyunMNSTest.Queue.Integration do
       {:ok, _response} = MNS.delete_queue(queue_url)
     end)
 
-    Process.sleep(2_000)
+    Process.sleep(3_000)
 
     {:ok, queue_url: queue_url}
   end
@@ -98,11 +98,48 @@ defmodule ExAliyunMNSTest.Queue.Integration do
   end
 
   test "send with delay seconds and delete message", context do
+    queue_url = context[:queue_url]
+
     message = "Test"
-    {:ok, response} = MNS.send_message(context[:queue_url], message, delay_seconds: 300)
+    {:ok, response} = MNS.send_message(queue_url, message, delay_seconds: 300)
     receipt_handle = Map.get(response.body, "Message") |> Map.get("ReceiptHandle")
-    {:ok, response} = MNS.delete_message(context[:queue_url], receipt_handle)
+
+    {:ok, response} = MNS.delete_message(queue_url, receipt_handle)
     assert request_id(response) != nil
+  end
+
+  test "send MessagePack message", context do
+    queue_url = context[:queue_url]
+
+    message = %{name: 1} |> Msgpax.pack!(iodata: false)
+    {:ok, _response} = MNS.send_message(queue_url, message)
+
+    {:ok, response} = MNS.receive_message(queue_url)
+
+    message = Map.get(response.body, "Message")
+    content = Msgpax.unpack!(Map.get(message, "MessageBody"))
+    assert content == %{"name" => 1}
+
+    receipt_handle = message |> Map.get("ReceiptHandle")
+    {:ok, _response} = MNS.delete_message(queue_url, receipt_handle)
+  end
+
+  test "send json message", context do
+    queue_url = context[:queue_url]
+
+    data = %{"data" => 1}
+
+    {:ok, _} = MNS.send_message(queue_url, Jason.encode!(data))
+
+    {:ok, response} = MNS.receive_message(queue_url)
+
+    message = Map.get(response.body, "Message")
+    received_message = Jason.decode!(Map.get(message, "MessageBody"))
+    
+    assert received_message == data
+
+    receipt_handle = message |> Map.get("ReceiptHandle")
+    {:ok, _response} = MNS.delete_message(queue_url, receipt_handle)
   end
 
   test "send with delay seconds and batch_delete message", context do
@@ -148,7 +185,7 @@ defmodule ExAliyunMNSTest.Queue.Integration do
     assert Enum.sort(messages1 ++ messages2 ++ messages3) == messages
   end
 
-  test "peek and batch_peek message", context do
+  test "peek and batch_peek string message", context do
     queue_url = context[:queue_url]
 
     # There is no message so far, so will get a MessageNotExist error
@@ -162,7 +199,7 @@ defmodule ExAliyunMNSTest.Queue.Integration do
     # batch_peek
     {:ok, response} = MNS.peek_message(queue_url, number: 2)
 
-    message_from_peek = Map.get(response.body, "Messages") |> Map.get("Message") |> Map.get("MessageBody")
+    message_from_peek = Map.get(response.body, "Messages") |> List.first() |> Map.get("MessageBody")
     
     assert message_from_peek == message
 
@@ -174,6 +211,25 @@ defmodule ExAliyunMNSTest.Queue.Integration do
     {:error, response} = MNS.peek_message(queue_url)
     {code, _} = error_code_and_message(response)
     assert code == "MessageNotExist"
+  end
+
+  test "peek and batch_peek MessagePack message", context do
+    queue_url = context[:queue_url]
+
+    message = Msgpax.pack!(%{"test" => %{"field" => "1"}}, iodata: false)
+    {:ok, _response} = MNS.send_message(queue_url, message)
+
+    {:ok, response} = MNS.peek_message(queue_url, number: 2)
+
+    response.body
+    |> Map.get("Messages")
+    |> Enum.map(fn(message) ->
+      message_body = Map.get(message, "MessageBody")
+      {result, data} = Msgpax.unpack(message_body)
+      assert result == :ok and Map.get(data, "test") == %{"field" => "1"}
+    end)
+
+    receive_messages(queue_url)
   end
 
   test "change_message_visibility", context do

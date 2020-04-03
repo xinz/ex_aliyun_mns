@@ -1,7 +1,7 @@
 defmodule ExAliyun.MNS.Topic do
   @moduledoc false
 
-  alias ExAliyun.MNS.Operation
+  alias ExAliyun.MNS.{Operation, Parser}
 
   @spec create(topic_name :: String.t(), opts :: Keyword.t()) :: Operation.t()
   def create(topic_name, opts \\ []) do
@@ -83,7 +83,7 @@ defmodule ExAliyun.MNS.Topic do
     params =
       opts
       |> Map.new()
-      |> Map.put(:message_body, message_body)
+      |> Map.put(:message_body, Parser.encode_message_body(message_body))
     operation(topic_url, "PublishMessage", params: params)
   end
 

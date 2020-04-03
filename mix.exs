@@ -30,6 +30,8 @@ defmodule ExAliyun.MNS.MixProject do
       {:mint, "~> 1.0"},
       {:castore, "~> 0.1"},
       {:sax_map, "~> 0.2"},
+      {:msgpax, "~> 2.2", only: :test},
+      {:jason, "~> 1.2", only: :test},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false}
     ]
   end
