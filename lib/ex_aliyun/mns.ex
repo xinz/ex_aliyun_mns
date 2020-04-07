@@ -59,16 +59,20 @@ defmodule ExAliyun.MNS do
 
   Or set these option(s) via `config_overrides` option to dynamically set/override in each operation request.
 
-  ## Options
+  ## Config options
 
     * `access_key_id`, optional, the access key id of Alibaba Cloud RAM for MNS;
     * `access_key_secret`, optional, the access key secret of Alibaba Cloud RAM for MNS;
     * `host`, optional, the MNS's regions to request, the available regions can be found in MNS's console,
       e.g. "https://xxxx.mns.us-east-1.aliyuncs.com".
+
+  ## Http options
+
+    * `timeout`, optional, time in milliseconds, used when receiving data over a connection, default it `15_000`.
   """
   @spec request(operation :: Operation.t(), config_overrides :: Keyword.t()) :: result
-  def request(operation, config_overrides \\ []) do
-    Client.request(operation, Config.new(config_overrides))
+  def request(operation, config_overrides \\ [], http_opts \\ []) do
+    Client.request(operation, Config.new(config_overrides), http_opts)
   end
 
   @doc """
