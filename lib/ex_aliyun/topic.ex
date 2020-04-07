@@ -88,7 +88,7 @@ defmodule ExAliyun.MNS.Topic do
   end
 
   defp transfer_publish_message_params(%{message_attributes: _} = map, message_body) do
-    Map.put(map, :message_body, filter_invalid_message_body(message_body))
+    Map.put(map, :message_body, filter_maybe_invalid_cdata(message_body))
   end
   defp transfer_publish_message_params(map, message_body) do
     Map.put(map, :message_body, Parser.encode_message_body(message_body))
@@ -114,8 +114,9 @@ defmodule ExAliyun.MNS.Topic do
     }
   end
 
-  defp filter_invalid_message_body(nil), do: nil
-  defp filter_invalid_message_body(message_body) do
-    String.replace(message_body, "]]>", "")
+  defp filter_maybe_invalid_cdata(nil), do: nil
+  defp filter_maybe_invalid_cdata(message_body) do
+    # Refer https://en.wikipedia.org/wiki/CDATA#Nesting
+    String.replace(message_body, "]]>", "]]]]><![CDATA[>")
   end
 end
