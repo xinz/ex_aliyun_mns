@@ -14,7 +14,7 @@ defmodule ExAliyunMNSTest.RetryHttp do
     res =
       queue_name
       |> MNS.Queue.create([]) 
-      |> MNS.request(opts, [timeout: 10])
+      |> MNS.request(opts, [timeout: 1])
     end_timestamp = Timex.to_unix(Timex.now())
     assert res == {:error, :timeout}
     assert end_timestamp - start_timestamp > 5
