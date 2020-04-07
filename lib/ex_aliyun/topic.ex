@@ -88,6 +88,7 @@ defmodule ExAliyun.MNS.Topic do
   end
 
   defp transfer_publish_message_params(%{message_attributes: _} = map, message_body) do
+    # `message_attributes` is only used for SMS or Email.
     Map.put(map, :message_body, filter_maybe_invalid_cdata(message_body))
   end
   defp transfer_publish_message_params(map, message_body) do
