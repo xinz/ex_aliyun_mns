@@ -212,7 +212,7 @@ defmodule ExAliyun.MNS.Client do
 
   defp match_should_retry?({:error, :closed}), do: true
   defp match_should_retry?({:error, :timeout}), do: true
-  defp match_should_retry?({:error, error}) do
+  defp match_should_retry?({:error, error}) when is_atom(error) do
     Logger.error(fn -> "ExAliyunMNS occurs an unknown error: #{inspect error}, will retry it." end)
     true
   end
