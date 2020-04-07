@@ -3,7 +3,7 @@ defmodule ExAliyun.MNS.Client do
 
   alias ExAliyun.MNS.{Xml, Parser}
 
-  @timeout_seconds 10_000
+  @timeout_seconds 15_000
 
   def request(%{action: action} = operation, config) do
     operation
@@ -159,12 +159,13 @@ defmodule ExAliyun.MNS.Client do
     |> post("#{topic_url}/messages", body)
   end
 
-  defp new_client(config, opts \\ [timeout: @timeout_seconds]) do
+  defp new_client(config, opts \\ []) do
     middleware = [
       {Tesla.Middleware.BaseUrl, config.host},
       {ExAliyun.MNS.Http.Middleware, config}
     ]
-    adapter = {Tesla.Adapter.Mint, opts}
+    timeout = Keyword.get(opts, :timeout, @timeout_seconds)
+    adapter = {Tesla.Adapter.Hackney, [recv_timeout: timeout]}
     Tesla.client(middleware, adapter)
   end
 

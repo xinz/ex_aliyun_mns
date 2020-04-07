@@ -1,7 +1,9 @@
 defmodule ExAliyun.MNS.Parser do
   @moduledoc false
 
-  def parse({:ok, %{body: nil, url: url} = response}, "CreateQueue") do
+  def parse({:ok, %{body: body, url: url} = response}, "CreateQueue")
+      when body == ""
+      when body == nil do
     body = %{
       "request_id" => extract_request_id(response.headers),
       "queue_url" => url
@@ -10,7 +12,9 @@ defmodule ExAliyun.MNS.Parser do
     {:ok, response}
   end
 
-  def parse({:ok, %{body: nil, url: url} = response}, "CreateTopic") do
+  def parse({:ok, %{body: body, url: url} = response}, "CreateTopic")
+      when body == ""
+      when body == nil do
     body = %{
       "request_id" => extract_request_id(response.headers),
       "topic_url" => url
@@ -19,17 +23,23 @@ defmodule ExAliyun.MNS.Parser do
     {:ok, response}
   end
 
-  def parse({:ok, %{body: nil} = response}, _action) do
+  def parse({:ok, %{body: body} = response}, _action)
+      when body == ""
+      when body == nil do
     use_request_id_when_body_nil(response)
   end
 
-  def parse({:ok, %{body: body, status: status} = response}, _action) when body != nil and (status >= 200 and status < 400) do
+  def parse({:ok, %{body: body, status: status} = response}, _action)
+      when body != "" and (status >= 200 and status < 400)
+      when body != nil and (status >= 200 and status < 400) do
     {:ok, body} = SAXMap.from_string(body)
     response = parse_response(response, decode_message_body(body))
     {:ok, response}
   end
 
-  def parse({:ok, %{body: body, status: status} = response}, _action) when body != nil and (status >= 400 and status <= 502) do
+  def parse({:ok, %{body: body, status: status} = response}, _action)
+      when body != "" and (status >= 400 and status <= 502)
+      when body != nil and (status >= 400 and status <= 502) do
     # fail cases
     {:ok, body} = SAXMap.from_string(body)
     response = parse_response(response, body)
