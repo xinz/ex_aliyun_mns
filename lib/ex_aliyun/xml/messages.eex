@@ -5,7 +5,7 @@
       <% delay_seconds = Map.get(message, :delay_seconds) %>
       <% priority = Map.get(message, :priority) %>
       <% message_body = Map.get(message, :message_body) %>
-      <MessageBody><%= message_body %></MessageBody>
+      <MessageBody><![CDATA[<%= message_body %>]]></MessageBody>
       <%= if is_integer(delay_seconds) do %>
         <DelaySeconds><%= delay_seconds %></DelaySeconds>
       <% end %>

@@ -3,7 +3,7 @@
   <% message_body = Map.get(message, :message_body) %>
   <% message_tag = Map.get(message, :message_tag) %>
   <% message_attributes = Map.get(message, :message_attributes) %>
-  <MessageBody><%= message_body %></MessageBody>
+  <MessageBody><![CDATA[<%= message_body %>]]></MessageBody>
   <%= if message_tag != nil do %>
     <MessageTag><%= message_tag %></MessageTag>
   <% end %>

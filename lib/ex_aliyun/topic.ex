@@ -83,8 +83,15 @@ defmodule ExAliyun.MNS.Topic do
     params =
       opts
       |> Map.new()
-      |> Map.put(:message_body, Parser.encode_message_body(message_body))
+      |> transfer_publish_message_params(message_body)
     operation(topic_url, "PublishMessage", params: params)
+  end
+
+  defp transfer_publish_message_params(%{message_attributes: _} = map, message_body) do
+    Map.put(map, :message_body, filter_invalid_message_body(message_body))
+  end
+  defp transfer_publish_message_params(map, message_body) do
+    Map.put(map, :message_body, Parser.encode_message_body(message_body))
   end
 
   defp operation(topic_url, action, opts \\ [])
@@ -105,5 +112,10 @@ defmodule ExAliyun.MNS.Topic do
       params: params,
       headers: opts[:headers]
     }
+  end
+
+  defp filter_invalid_message_body(nil), do: nil
+  defp filter_invalid_message_body(message_body) do
+    String.replace(message_body, "]]>", "")
   end
 end
