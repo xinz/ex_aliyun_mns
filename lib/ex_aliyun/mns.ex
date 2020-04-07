@@ -1,6 +1,6 @@
 defmodule ExAliyun.MNS do
   @moduledoc """
-  [Alibaba Cloud Message Service](https://www.alibabacloud.com/help/doc-detail/27414.htm){:target="_blank"}
+  The official link to introduce [Alibaba Cloud Message Service](https://www.alibabacloud.com/help/doc-detail/27414.htm){:target="_blank"}.
 
   ## Queue APIs
 
@@ -194,7 +194,7 @@ defmodule ExAliyun.MNS do
   @doc """
   Send up to 16 messages to a MNS Queue in a single request.
 
-  [Aliyun API Docs](https://help.aliyun.com/document_detail/35135.html){:target="_blank"}
+  [Alibaba Cloud API Docs](https://help.aliyun.com/document_detail/35135.html){:target="_blank"}
 
   ## Options
 
@@ -209,7 +209,7 @@ defmodule ExAliyun.MNS do
   @doc """
   Delete a message from a MNS Queue.
 
-  [Aliyun API Docs](https://help.aliyun.com/document_detail/35138.html){:target="_blank"}
+  [Alibaba Cloud API Docs](https://help.aliyun.com/document_detail/35138.html){:target="_blank"}
 
   ## Options
 
@@ -224,7 +224,7 @@ defmodule ExAliyun.MNS do
   @doc """
   Delete a list of messages from a MNS Queue in a single request.
 
-  [Aliyun API Docs](https://help.aliyun.com/document_detail/35139.html){:target="_blank"}
+  [Alibaba Cloud API Docs](https://help.aliyun.com/document_detail/35139.html){:target="_blank"}
 
   ## Options
 
@@ -239,7 +239,7 @@ defmodule ExAliyun.MNS do
   @doc """
   Read message(s) from a MNS Queue.
 
-  [Aliyun API Docs](https://help.aliyun.com/document_detail/35136.html){:target="_blank"}
+  [Alibaba Cloud API Docs](https://help.aliyun.com/document_detail/35136.html){:target="_blank"}
 
   ## Options
 
@@ -257,7 +257,7 @@ defmodule ExAliyun.MNS do
   @doc """
   View message(s) from a MNS Queue but do not change message(s) status.
 
-  [Aliyun API Docs](https://help.aliyun.com/document_detail/35140.html){:target="_blank"}
+  [Alibaba Cloud API Docs](https://help.aliyun.com/document_detail/35140.html){:target="_blank"}
 
   ## Options
   
@@ -273,7 +273,7 @@ defmodule ExAliyun.MNS do
   @doc """
   Modify the next consumable time of a message which has been consumed and is still in `inactive` status. After `VisibilityTimeout` of the message is modified successfully, a new ReceiptHandle will be returned.
 
-  [Aliyun API Docs](https://www.alibabacloud.com/help/doc-detail/35142.htm){:target="_blank"}
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35142.htm){:target="_blank"}
 
   ## Options
 
