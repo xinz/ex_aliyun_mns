@@ -1,6 +1,6 @@
 defmodule ExAliyun.MNS do
   @moduledoc """
-  [Alibaba Cloud Message Service](https://www.alibabacloud.com/help/doc-detail/27414.htm)
+  [Alibaba Cloud Message Service](https://www.alibabacloud.com/help/doc-detail/27414.htm){:target="_blank"}
 
   ## Queue APIs
 
@@ -78,7 +78,7 @@ defmodule ExAliyun.MNS do
   @doc """
   Create a new message queue, the message queue name should be no more than 256 characters, and constituted by letters, digits, or hyphens (-), while the first character must be a letter.
 
-  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35129.htm)
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35129.htm){:target="_blank"}
 
   ## Options
 
@@ -100,7 +100,7 @@ defmodule ExAliyun.MNS do
   @doc """
   Modify attributes of a message queue.
 
-  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35130.htm)
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35130.htm){:target="_blank"}
 
   ## Options
 
@@ -123,7 +123,7 @@ defmodule ExAliyun.MNS do
   @doc """
   Get the attributes of a message queue.
 
-  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35131.htm)
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35131.htm){:target="_blank"}
 
   ## Options
 
@@ -138,7 +138,7 @@ defmodule ExAliyun.MNS do
   @doc """
   List the available message queues.
 
-  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35133.htm)
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35133.htm){:target="_blank"}
 
   ## Options
   
@@ -156,7 +156,7 @@ defmodule ExAliyun.MNS do
   @doc """
   Delete an existed message queue.
 
-  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35132.htm)
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35132.htm){:target="_blank"}
 
   ## Options
 
@@ -169,9 +169,9 @@ defmodule ExAliyun.MNS do
   end
 
   @doc """
-  Sand a message to MNS Queue
+  Sand a message to MNS Queue.
 
-  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35134.htm)
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35134.htm){:target="_blank"}
 
   ## Options
   
@@ -192,9 +192,9 @@ defmodule ExAliyun.MNS do
     ]
 
   @doc """
-  Send up to 16 messages to a MNS Queue in a single request
+  Send up to 16 messages to a MNS Queue in a single request.
 
-  [Aliyun API Docs](https://help.aliyun.com/document_detail/35135.html)
+  [Aliyun API Docs](https://help.aliyun.com/document_detail/35135.html){:target="_blank"}
 
   ## Options
 
@@ -207,9 +207,9 @@ defmodule ExAliyun.MNS do
   end
 
   @doc """
-  Delete a message from a MNS Queue
+  Delete a message from a MNS Queue.
 
-  [Aliyun API Docs](https://help.aliyun.com/document_detail/35138.html)
+  [Aliyun API Docs](https://help.aliyun.com/document_detail/35138.html){:target="_blank"}
 
   ## Options
 
@@ -222,9 +222,9 @@ defmodule ExAliyun.MNS do
   end
 
   @doc """
-  Delete a list of messages from a MNS Queue in a single request
+  Delete a list of messages from a MNS Queue in a single request.
 
-  [Aliyun API Docs](https://help.aliyun.com/document_detail/35139.html)
+  [Aliyun API Docs](https://help.aliyun.com/document_detail/35139.html){:target="_blank"}
 
   ## Options
 
@@ -237,9 +237,9 @@ defmodule ExAliyun.MNS do
   end
 
   @doc """
-  Read message(s) from a MNS Queue
+  Read message(s) from a MNS Queue.
 
-  [Aliyun API Docs](https://help.aliyun.com/document_detail/35136.html)
+  [Aliyun API Docs](https://help.aliyun.com/document_detail/35136.html){:target="_blank"}
 
   ## Options
 
@@ -257,7 +257,7 @@ defmodule ExAliyun.MNS do
   @doc """
   View message(s) from a MNS Queue but do not change message(s) status.
 
-  [Aliyun API Docs](https://help.aliyun.com/document_detail/35140.html)
+  [Aliyun API Docs](https://help.aliyun.com/document_detail/35140.html){:target="_blank"}
 
   ## Options
   
@@ -273,7 +273,7 @@ defmodule ExAliyun.MNS do
   @doc """
   Modify the next consumable time of a message which has been consumed and is still in `inactive` status. After `VisibilityTimeout` of the message is modified successfully, a new ReceiptHandle will be returned.
 
-  [Aliyun API Docs](https://www.alibabacloud.com/help/doc-detail/35142.htm)
+  [Aliyun API Docs](https://www.alibabacloud.com/help/doc-detail/35142.htm){:target="_blank"}
 
   ## Options
 
@@ -289,7 +289,7 @@ defmodule ExAliyun.MNS do
   @doc """
   Create a new topic, a topic name is a string of no more than 256 characters, including letters, numbers, and hyphens (-). It must start with a letter or number.
 
-  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/27495.htm)
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/27495.htm){:target="_blank"}
 
   ## Options
 
@@ -306,7 +306,7 @@ defmodule ExAliyun.MNS do
   @doc """
   Modify the attributes of an existing topic.
 
-  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140704.htm)
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140704.htm){:target="_blank"}
 
   ## Options
 
@@ -324,7 +324,7 @@ defmodule ExAliyun.MNS do
   @doc """
   Get the attributes of an existing topic.
 
-  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140711.htm)
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140711.htm){:target="_blank"}
 
   ## Options
 
@@ -340,7 +340,7 @@ defmodule ExAliyun.MNS do
   @doc """
   Delete an existing topic.
 
-  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140713.htm)
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140713.htm){:target="_blank"}
 
   ## Options
 
@@ -356,7 +356,7 @@ defmodule ExAliyun.MNS do
   @doc """
   List the topics of an account.
 
-  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140714.htm)
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140714.htm){:target="_blank"}
 
   ## Options
 
@@ -374,7 +374,7 @@ defmodule ExAliyun.MNS do
   @doc """
   Create a subscription to a topic.
 
-  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/27496.htm)
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/27496.htm){:target="_blank"}
 
   ## Options
 
@@ -396,9 +396,9 @@ defmodule ExAliyun.MNS do
 
   @doc """
   Modify `notify_strategy` of subscription attribute, the value of `notify_strategy`
-  can be set as `"BACKOFF_RETRY"` or `"EXPONENTIAL_DECAY_RETRY"`
+  can be set as `"BACKOFF_RETRY"` or `"EXPONENTIAL_DECAY_RETRY"`.
 
-  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140719.htm)
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140719.htm){:target="_blank"}
 
   ## Options
 
@@ -419,9 +419,9 @@ defmodule ExAliyun.MNS do
   end
 
   @doc """
-  Get subscription attributes
+  Get subscription attributes.
 
-  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140720.htm)
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140720.htm){:target="_blank"}
 
   ## Options
 
@@ -439,7 +439,7 @@ defmodule ExAliyun.MNS do
   @doc """
   Cancel a subscription.
 
-  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140721.htm)
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140721.htm){:target="_blank"}
 
   ## Options
 
@@ -455,7 +455,7 @@ defmodule ExAliyun.MNS do
   @doc """
   List the subscriptions to a topic, support pagination query.
 
-  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140718.htm)
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140718.htm){:target="_blank"}
 
   ## Options
   
@@ -474,7 +474,7 @@ defmodule ExAliyun.MNS do
   @doc """
   Publish a message to a specified topic, the message is pushed to endpoints for consumption.
 
-  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/27497.htm)
+  [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/27497.htm){:target="_blank"}
 
   ## Options
   
