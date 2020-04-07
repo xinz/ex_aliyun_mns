@@ -26,3 +26,4 @@ ex_aliyun_mns-*.tar
 .DS_Store
 .idea
 config/test.exs
+config/*.secret.exs
