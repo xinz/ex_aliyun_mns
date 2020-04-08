@@ -94,6 +94,9 @@ defmodule ExAliyun.MNS.Parser do
     message = Map.put(message, "MessageBody", Base.decode64!(message_body))
     Map.put(body, "Messages", [message])
   end
+  defp decode_message_body(%{"Messages" => %{"Message" => message}} = body) when is_map(message) do
+    Map.put(body, "Messages", [message])
+  end
   defp decode_message_body(%{"Messages" => %{"Message" => messages}} = body) when is_list(messages) do
     messages =
       Enum.map(messages, fn

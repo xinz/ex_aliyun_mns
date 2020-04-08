@@ -158,7 +158,7 @@ defmodule ExAliyunMNSTest.Queue.Integration do
 
     message = "Test"
 
-    {:ok, _response} = MNS.send_message(queue_url, message)
+    assert {:ok, %{body: %{"Message" => _resp_message}}} = MNS.send_message(queue_url, message)
 
     {:ok, response} = MNS.receive_message(queue_url)
 
@@ -170,9 +170,17 @@ defmodule ExAliyunMNSTest.Queue.Integration do
 
     assert error_code_and_message(response) == {"InvalidArgument", "The value of PollingWaitSeconds should between 0 and 30 seconds"}
 
+    messages = ["msg1"]
+    assert {:ok, %{body: %{"Messages" => resp_messages}}} = MNS.batch_send_message(queue_url, messages)
+    assert length(resp_messages) == 1
+
+    get_messages = receive_messages(queue_url, 3, 20)
+    assert length(get_messages) == 1
+
     messages = ["msg1", "msg2", "msg3"]
 
-    {:ok, _response} = MNS.batch_send_message(queue_url, messages)
+    assert {:ok, %{body: %{"Messages" => resp_messages}}} = MNS.batch_send_message(queue_url, messages)
+    assert is_list(resp_messages) == true
 
     messages1 = receive_messages(queue_url, 3, 20)
     messages2 = receive_messages(queue_url, 3, 20)
