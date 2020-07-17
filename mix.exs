@@ -28,7 +28,7 @@ defmodule ExAliyun.MNS.MixProject do
       {:tesla, "~> 1.3.3"},
       {:timex, "~> 3.6"},
       {:hackney, "~> 1.15"},
-      {:sax_map, "~> 0.2"},
+      {:sax_map, "~> 1.0"},
       {:msgpax, "~> 2.2", only: :test},
       {:jason, "~> 1.2", only: :test},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false}
