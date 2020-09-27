@@ -4,31 +4,32 @@ defmodule ExAliyun.MNS do
 
   ## Queue APIs
 
-    * `create_queue/2`
-    * `set_queue_attributes/2`
-    * `get_queue_attributes/2`
-    * `list_queues/1`
-    * `delete_queue/2`
-    * `send_message/3`
     * `batch_send_message/2`
     * `batch_delete_message/3`
-    * `receive_message/2`
-    * `peek_message/2`
     * `change_message_visibility/4`
+    * `create_queue/2`
+    * `delete_message/3`
+    * `delete_queue/2`
+    * `get_queue_attributes/2`
+    * `list_queues/1`
+    * `peek_message/2`
+    * `send_message/3`
+    * `set_queue_attributes/2`
+    * `receive_message/2`
   
   ## Topic APIs
   
     * `create_topic/2`
-    * `set_topic_attributes/2`
-    * `get_topic_attributes/1`
     * `delete_topic/1`
-    * `list_topics/1`
-    * `subscribe/4`
-    * `set_subscription_attributes/4`
     * `get_subscription_attributes/3`
-    * `unsubscribe/3`
+    * `get_topic_attributes/1`
     * `list_subscriptions/2`
+    * `list_topics/1`
     * `publish_topic_message/3`
+    * `set_subscription_attributes/4`
+    * `set_topic_attributes/2`
+    * `subscribe/4`
+    * `unsubscribe/3`
   """
 
   alias ExAliyun.MNS.{Topic, Queue, Client, Config}
