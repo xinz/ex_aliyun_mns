@@ -8,6 +8,7 @@ defmodule ExAliyun.MNS do
     * `batch_delete_message/3`
     * `change_message_visibility/4`
     * `create_queue/2`
+    * `ensure_queue/2`
     * `delete_message/3`
     * `delete_queue/2`
     * `get_queue_attributes/2`
@@ -96,6 +97,56 @@ defmodule ExAliyun.MNS do
   def create_queue(queue_name, opts \\ []) do
     {config_overrides, opts} = Keyword.pop(opts, :config_overrides, [])
     Queue.create(queue_name, opts) |> request(config_overrides)
+  end
+
+  @doc """
+  Create a new message queue if it doesn't exist
+
+  More details can be seen at:
+
+    * `list_queues/0`, `list_queues/1`
+    * `create_queue/1`, `create_queue/2`
+
+  ## Options
+
+    Support all the options of `list_queues/2`, `create_queue/2`
+  """
+  @spec ensure_queue(queue_name :: String.t(), opts :: Keyword.t()) ::
+          {:error, :already_exists} | result
+  def ensure_queue(queue, opts \\ []) do
+    {config_overrides, opts} = Keyword.pop(opts, :config_overrides, [])
+    list_queues_opts = [queue_name_prefix: queue, number: 1, config_overrides: config_overrides]
+
+    {list_queues_opts, create_queue_opts} =
+      case Keyword.pop(opts, :marker) do
+        {nil, create_queue_opts} ->
+          {list_queues_opts, create_queue_opts}
+
+        {marker, create_queue_opts} ->
+          {[{:marker, marker} | list_queues_opts], create_queue_opts}
+      end
+
+    case list_queues(list_queues_opts) do
+      {:ok, %{body: body}} ->
+        case get_in(body, ["Queues", "Queue"]) do
+          %{"QueueName" => ^queue} -> true
+          list when is_list(list) -> Enum.any?(list, &match?(^queue, &1["QueueName"]))
+          _ -> false
+        end
+
+      error ->
+        error
+    end
+    |> case do
+      true ->
+        {:error, :already_exists}
+
+      false ->
+        create_queue(queue, [{:config_overrides, config_overrides} | create_queue_opts])
+
+      error ->
+        error
+    end
   end
 
   @doc """
