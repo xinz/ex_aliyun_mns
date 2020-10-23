@@ -42,7 +42,7 @@ defmodule ExAliyun.MNS.Http.Middleware do
       {"content-type", @content_type},
       {"date", date},
       {"host", extract_host(host)},
-      mns_version_header(),
+      mns_version_header()
     ]
   end
 
@@ -78,6 +78,7 @@ defmodule ExAliyun.MNS.Http.Middleware do
   end
 
   defp add_content_length_to_headers(headers, nil), do: headers
+
   defp add_content_length_to_headers(headers, body) do
     [{"content-length", "#{String.length(body)}"} | headers]
   end

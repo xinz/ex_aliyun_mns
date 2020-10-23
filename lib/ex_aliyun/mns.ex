@@ -16,9 +16,9 @@ defmodule ExAliyun.MNS do
     * `send_message/3`
     * `set_queue_attributes/2`
     * `receive_message/2`
-  
+
   ## Topic APIs
-  
+
     * `create_topic/2`
     * `delete_topic/1`
     * `get_subscription_attributes/3`
@@ -142,13 +142,13 @@ defmodule ExAliyun.MNS do
   [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35133.htm){:target="_blank"}
 
   ## Options
-  
+
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details;
     * `:queue_name_prefix`, optional, search for the queue name starting with this prefix;
     * `:number`, optional, maximum number of results returned for a single request, the valid value range in 1..1000, by default is 1000;
     * `:marker`, optional, a similar pagination cursor when list a large queues list, which is acquired from the `NextMarker` returned in the previous request.
   """
-  @spec list_queues(opts :: Keyword.t()) :: result 
+  @spec list_queues(opts :: Keyword.t()) :: result
   def list_queues(opts \\ []) do
     {config_overrides, opts} = Keyword.pop(opts, :config_overrides, [])
     Queue.list_queues(opts) |> request(config_overrides)
@@ -175,22 +175,25 @@ defmodule ExAliyun.MNS do
   [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/35134.htm){:target="_blank"}
 
   ## Options
-  
+
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details;
     * `:delay_seconds`, optional, message sent to the queue can be consumed after `delay_seconds` seconds, the valid value range in 0..604800 (7 days), by default is 0 second;
     * `:priority`
   """
-  @spec send_message(queue_url :: String.t(), message_body :: String.t(), opts :: Keyword.t()) :: result
+  @spec send_message(queue_url :: String.t(), message_body :: String.t(), opts :: Keyword.t()) ::
+          result
   def send_message(queue_url, message_body, opts \\ []) do
     {config_overrides, opts} = Keyword.pop(opts, :config_overrides, [])
     Queue.send_message(queue_url, message_body, opts) |> request(config_overrides)
   end
 
-  @type mns_batch_message :: String.t() | [
-      {:message_body, String.t()},
-      {:delay_seconds, 0..604800},
-      {:priority, 1..16}
-    ]
+  @type mns_batch_message ::
+          String.t()
+          | [
+              {:message_body, String.t()},
+              {:delay_seconds, 0..604_800},
+              {:priority, 1..16}
+            ]
 
   @doc """
   Send up to 16 messages to a MNS Queue in a single request.
@@ -216,7 +219,8 @@ defmodule ExAliyun.MNS do
 
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details.
   """
-  @spec delete_message(queue_url :: String.t(), receipt_handle :: String.t(), opts :: Keyword.t()) :: result
+  @spec delete_message(queue_url :: String.t(), receipt_handle :: String.t(), opts :: Keyword.t()) ::
+          result
   def delete_message(queue_url, receipt_handle, opts \\ []) do
     config_overrides = Keyword.get(opts, :config_overrides, [])
     Queue.delete_message(queue_url, receipt_handle) |> request(config_overrides)
@@ -231,7 +235,11 @@ defmodule ExAliyun.MNS do
 
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details.
   """
-  @spec batch_delete_message(queue_url :: String.t(), receipt_handles :: [String.t()], opts :: Keyword.t()) :: result
+  @spec batch_delete_message(
+          queue_url :: String.t(),
+          receipt_handles :: [String.t()],
+          opts :: Keyword.t()
+        ) :: result
   def batch_delete_message(queue_url, receipt_handles, opts \\ []) do
     config_overrides = Keyword.get(opts, :config_overrides, [])
     Queue.batch_delete_message(queue_url, receipt_handles) |> request(config_overrides)
@@ -261,7 +269,7 @@ defmodule ExAliyun.MNS do
   [Alibaba Cloud API Docs](https://help.aliyun.com/document_detail/35140.html){:target="_blank"}
 
   ## Options
-  
+
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details;
     * `:number`, optional, maximum number of messages can be viewed for the current operation ([see BatchPeekMessage doc](https://www.alibabacloud.com/help/doc-detail/35141.htm)), the default number is 1, the maximum number is 16.
   """
@@ -280,12 +288,18 @@ defmodule ExAliyun.MNS do
 
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details.
   """
-  @spec change_message_visibility(queue_url :: String.t(), receipt_handle :: String.t(), visibility_timeout :: integer(), opts :: Keyword.t()) :: result
+  @spec change_message_visibility(
+          queue_url :: String.t(),
+          receipt_handle :: String.t(),
+          visibility_timeout :: integer(),
+          opts :: Keyword.t()
+        ) :: result
   def change_message_visibility(queue_url, receipt_handle, visibility_timeout, opts \\ []) do
     config_overrides = Keyword.get(opts, :config_overrides, [])
-    Queue.change_message_visibility(queue_url, receipt_handle, visibility_timeout) |> request(config_overrides)
-  end
 
+    Queue.change_message_visibility(queue_url, receipt_handle, visibility_timeout)
+    |> request(config_overrides)
+  end
 
   @doc """
   Create a new topic, a topic name is a string of no more than 256 characters, including letters, numbers, and hyphens (-). It must start with a letter or number.
@@ -428,7 +442,11 @@ defmodule ExAliyun.MNS do
 
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details.
   """
-  @spec get_subscription_attributes(topic_url :: String.t(), subscription_name :: String.t(), opts :: Keyword.t()) :: result
+  @spec get_subscription_attributes(
+          topic_url :: String.t(),
+          subscription_name :: String.t(),
+          opts :: Keyword.t()
+        ) :: result
   def get_subscription_attributes(topic_url, subscription_name, opts \\ []) do
     config_overrides = Keyword.get(opts, :config_overrides, [])
 
@@ -446,7 +464,8 @@ defmodule ExAliyun.MNS do
 
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details.
   """
-  @spec unsubscribe(topic_url :: String.t(), subscription_name :: String.t(), opts :: Keyword.t()) :: result
+  @spec unsubscribe(topic_url :: String.t(), subscription_name :: String.t(), opts :: Keyword.t()) ::
+          result
   def unsubscribe(topic_url, subscription_name, opts \\ []) do
     config_overrides = Keyword.get(opts, :config_overrides, [])
 
@@ -459,7 +478,7 @@ defmodule ExAliyun.MNS do
   [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/140718.htm){:target="_blank"}
 
   ## Options
-  
+
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details;
     * `:subscription_name_prefix`, optional, search for the subscription name starting with this prefix;
     * `:number`, optional, maximum number of results returned for a single request, the valid value range in 1..1000, by default is 1000;
@@ -478,12 +497,16 @@ defmodule ExAliyun.MNS do
   [Alibaba Cloud API Docs](https://www.alibabacloud.com/help/doc-detail/27497.htm){:target="_blank"}
 
   ## Options
-  
+
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details;
     * `:message_tag`, optional, a string no more than 16 characters, there is no message tag set by default;
     * `:message_attributes`, optional, a string of message attributes, only be useable for email or SMS push, please see API documents for details.
   """
-  @spec publish_topic_message(topic_url :: String.t(), message_body :: String.t(), opts :: Keyword.t()) :: result
+  @spec publish_topic_message(
+          topic_url :: String.t(),
+          message_body :: String.t(),
+          opts :: Keyword.t()
+        ) :: result
   def publish_topic_message(topic_url, message_body, opts \\ []) do
     {config_overrides, opts} = Keyword.pop(opts, :config_overrides, [])
 
@@ -492,7 +515,7 @@ defmodule ExAliyun.MNS do
 
   @doc false
   def format_opts_to_headers(opts) do
-    Enum.reduce(opts, [], fn({key, value}, acc) ->
+    Enum.reduce(opts, [], fn {key, value}, acc ->
       header = format_header(key, value)
       if header != nil, do: [header | acc], else: acc
     end)
@@ -502,20 +525,24 @@ defmodule ExAliyun.MNS do
   defp format_header(:topic_name_prefix, value) do
     {"x-mns-prefix", "#{value}"}
   end
+
   defp format_header(:queue_name_prefix, value) do
     {"x-mns-prefix", "#{value}"}
   end
+
   defp format_header(:subscription_name_prefix, value) do
     {"x-mns-prefix", "#{value}"}
   end
+
   defp format_header(:number, value) do
     {"x-mns-ret-number", "#{value}"}
   end
+
   defp format_header(:marker, value) do
     {"x-mns-marker", value}
   end
+
   defp format_header(_key, _value) do
     nil
   end
-
 end

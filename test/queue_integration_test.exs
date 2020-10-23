@@ -7,6 +7,7 @@ defmodule ExAliyunMNSTest.Queue.Integration do
 
   defp queue_size(response) do
     queue_items = Map.get(response.body, "Queues") |> Map.get("Queue")
+
     cond do
       is_map(queue_items) -> 1
       is_list(queue_items) -> length(queue_items)
@@ -31,8 +32,9 @@ defmodule ExAliyunMNSTest.Queue.Integration do
           [Map.get(messages, "ReceiptHandle")],
           [Map.get(messages, "MessageBody")]
         }
+
       is_list(messages) ->
-        Enum.reduce(messages, {[], []}, fn(message, {acc_rec, acc_mes}) ->
+        Enum.reduce(messages, {[], []}, fn message, {acc_rec, acc_mes} ->
           {
             [Map.get(message, "ReceiptHandle") | acc_rec],
             [Map.get(message, "MessageBody") | acc_mes]
@@ -46,11 +48,12 @@ defmodule ExAliyunMNSTest.Queue.Integration do
       {:ok, response} ->
         {receipt_handles, messages} = receipt_handles(response)
 
-        Enum.map(receipt_handles, fn(receipt_handle) ->
+        Enum.map(receipt_handles, fn receipt_handle ->
           MNS.delete_message(queue_url, receipt_handle)
         end)
 
         messages
+
       _error ->
         []
     end
@@ -135,7 +138,7 @@ defmodule ExAliyunMNSTest.Queue.Integration do
 
     message = Map.get(response.body, "Message")
     received_message = Jason.decode!(Map.get(message, "MessageBody"))
-    
+
     assert received_message == data
 
     receipt_handle = message |> Map.get("ReceiptHandle")
@@ -144,11 +147,13 @@ defmodule ExAliyunMNSTest.Queue.Integration do
 
   test "send with delay seconds and batch_delete message", context do
     queue_url = context[:queue_url]
+
     receipt_handles =
       Enum.map(["msg1", "msg2", "msg3"], fn message ->
         {:ok, response} = MNS.send_message(queue_url, message, delay_seconds: 300)
         Map.get(response.body, "Message") |> Map.get("ReceiptHandle")
       end)
+
     {:ok, response} = MNS.batch_delete_message(queue_url, receipt_handles)
     assert request_id(response) != nil
   end
@@ -168,10 +173,15 @@ defmodule ExAliyunMNSTest.Queue.Integration do
 
     {:error, response} = MNS.receive_message(queue_url, wait_time_seconds: 100)
 
-    assert error_code_and_message(response) == {"InvalidArgument", "The value of PollingWaitSeconds should between 0 and 30 seconds"}
+    assert error_code_and_message(response) ==
+             {"InvalidArgument",
+              "The value of PollingWaitSeconds should between 0 and 30 seconds"}
 
     messages = ["msg1"]
-    assert {:ok, %{body: %{"Messages" => resp_messages}}} = MNS.batch_send_message(queue_url, messages)
+
+    assert {:ok, %{body: %{"Messages" => resp_messages}}} =
+             MNS.batch_send_message(queue_url, messages)
+
     assert length(resp_messages) == 1
 
     get_messages = receive_messages(queue_url, 3, 20)
@@ -179,7 +189,9 @@ defmodule ExAliyunMNSTest.Queue.Integration do
 
     messages = ["msg1", "msg2", "msg3"]
 
-    assert {:ok, %{body: %{"Messages" => resp_messages}}} = MNS.batch_send_message(queue_url, messages)
+    assert {:ok, %{body: %{"Messages" => resp_messages}}} =
+             MNS.batch_send_message(queue_url, messages)
+
     assert is_list(resp_messages) == true
 
     messages1 = receive_messages(queue_url, 3, 20)
@@ -207,8 +219,9 @@ defmodule ExAliyunMNSTest.Queue.Integration do
     # batch_peek
     {:ok, response} = MNS.peek_message(queue_url, number: 2)
 
-    message_from_peek = Map.get(response.body, "Messages") |> List.first() |> Map.get("MessageBody")
-    
+    message_from_peek =
+      Map.get(response.body, "Messages") |> List.first() |> Map.get("MessageBody")
+
     assert message_from_peek == message
 
     [message_from_receive] = receive_messages(queue_url)
@@ -231,7 +244,7 @@ defmodule ExAliyunMNSTest.Queue.Integration do
 
     response.body
     |> Map.get("Messages")
-    |> Enum.map(fn(message) ->
+    |> Enum.map(fn message ->
       message_body = Map.get(message, "MessageBody")
       {result, data} = Msgpax.unpack(message_body)
       assert result == :ok and Map.get(data, "test") == %{"field" => "1"}
@@ -250,7 +263,7 @@ defmodule ExAliyunMNSTest.Queue.Integration do
     {:ok, response} = MNS.receive_message(queue_url)
 
     msg_map = Map.get(response.body, "Message")
-  
+
     message_from_receive = Map.get(msg_map, "MessageBody")
 
     assert message_from_receive == message
