@@ -16,7 +16,8 @@ defmodule ExAliyunMNSTest.RetryHttp do
       |> MNS.Queue.create([]) 
       |> MNS.request(opts, [timeout: 1])
     end_timestamp = Timex.to_unix(Timex.now())
-    assert res == {:error, :timeout}
+    # Currently, Tesla/Finch adapter will return the timeout error as a format string.
+    assert res == {:error, :timeout} or res == {:error, "timeout"}
     assert end_timestamp - start_timestamp > 5
   end
 end

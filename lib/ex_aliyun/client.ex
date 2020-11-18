@@ -3,9 +3,7 @@ defmodule ExAliyun.MNS.Client do
 
   require Logger
 
-  alias ExAliyun.MNS.{Xml, Parser}
-
-  @timeout_seconds 15_000
+  alias ExAliyun.MNS.{Xml, Parser, Application}
 
   def request(%{action: action} = operation, config, http_opts \\ []) do
     operation
@@ -167,8 +165,12 @@ defmodule ExAliyun.MNS.Client do
       {Tesla.Middleware.Retry, delay: 500, max_retries: 10, should_retry: &match_should_retry?/1},
       {ExAliyun.MNS.Http.Middleware, config}
     ]
-    timeout = Keyword.get(opts, :timeout, @timeout_seconds)
-    adapter = {Tesla.Adapter.Hackney, [recv_timeout: timeout]}
+    timeout = Keyword.get(opts, :timeout, 15_000)
+    adapter = {
+      Tesla.Adapter.Finch,
+      name: Application.http_name(),
+      receive_timeout: timeout
+    }
     Tesla.client(middleware, adapter)
   end
 
@@ -212,6 +214,8 @@ defmodule ExAliyun.MNS.Client do
 
   defp match_should_retry?({:error, :closed}), do: true
   defp match_should_retry?({:error, :timeout}), do: true
+  defp match_should_retry?({:error, "socket closed"}), do: true
+  defp match_should_retry?({:error, "timeout"}), do: true
   defp match_should_retry?({:error, error}) when is_atom(error) do
     Logger.error(fn -> "ExAliyunMNS occurs an unknown error: #{inspect error}, will retry it." end)
     true

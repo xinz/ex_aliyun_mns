@@ -18,16 +18,17 @@ defmodule ExAliyun.MNS.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {ExAliyun.MNS.Application, []}
     ]
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:tesla, "~> 1.3.3"},
+      {:tesla, "~> 1.4"},
+      {:finch, "~> 0.5"},
       {:timex, "~> 3.6"},
-      {:hackney, "~> 1.15"},
       {:sax_map, "~> 1.0"},
       {:msgpax, "~> 2.2", only: :test},
       {:jason, "~> 1.2", only: :test},
@@ -49,7 +50,7 @@ defmodule ExAliyun.MNS.MixProject do
       main: "readme",
       formatter_opts: [gfm: true],
       extras: [
-       "README.md"
+        "README.md"
       ]
     ]
   end
