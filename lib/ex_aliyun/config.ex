@@ -36,28 +36,37 @@ defmodule ExAliyun.MNS.Config do
 
   defp retrieve_runtime_value(value), do: value
 
-  defp validate(%{host: host, access_key_id: access_key_id, access_key_secret: access_key_secret} = config) do
+  defp validate(
+         %{host: host, access_key_id: access_key_id, access_key_secret: access_key_secret} =
+           config
+       ) do
     expect_valid_str(host, :host)
     expect_valid_str(access_key_id, :access_key_id)
     expect_valid_str(access_key_secret, :access_key_secret)
 
     config
   end
+
   defp validate(config) do
-    raise ArgumentError, "got invalid config: #{inspect(config)}, please check required fields: `host`, `access_key_id`, and `access_key_secret`"
+    raise ArgumentError,
+          "got invalid config: #{inspect(config)}, please check required fields: `host`, `access_key_id`, and `access_key_secret`"
   end
 
   defp expect_valid_str(value, field) when is_bitstring(value) do
     if String.trim(value) != "" do
       :ok
     else
-      raise ArgumentError, "got an invalid value: `#{inspect(value)}` for field: #{inspect(field)} when configure"
+      raise ArgumentError,
+            "got an invalid value: `#{inspect(value)}` for field: #{inspect(field)} when configure"
     end
   end
+
   defp expect_valid_str(nil, field) do
     raise ArgumentError, "got a nil value for field: `#{inspect(field)}` when configure"
   end
+
   defp expect_valid_str(value, field) do
-    raise ArgumentError, "got a non-string value: `#{inspect(value)}` for field: #{inspect(field)} when configure"
+    raise ArgumentError,
+          "got a non-string value: `#{inspect(value)}` for field: #{inspect(field)} when configure"
   end
 end

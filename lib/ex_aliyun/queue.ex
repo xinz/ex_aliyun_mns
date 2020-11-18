@@ -34,23 +34,31 @@ defmodule ExAliyun.MNS.Queue do
     operation(queue_url, "DeleteQueue")
   end
 
-  @spec send_message(queue_url :: String.t(), message_body :: String.t(), opts :: Keyword.t()) :: Operation.t()
+  @spec send_message(queue_url :: String.t(), message_body :: String.t(), opts :: Keyword.t()) ::
+          Operation.t()
   def send_message(queue_url, message_body, opts \\ []) do
     params =
       opts
       |> Map.new()
       |> Map.put(:message_body, Parser.encode_message_body(message_body))
+
     operation(queue_url, "SendMessage", params: params)
   end
 
-  @spec batch_send_message(queue_url :: String.t(), messages :: [ExAliyun.MNS.mns_batch_message]) :: Operation.t()
+  @spec batch_send_message(
+          queue_url :: String.t(),
+          messages :: [ExAliyun.MNS.mns_batch_message()]
+        ) :: Operation.t()
   def batch_send_message(queue_url, messages) when is_list(messages) do
-    messages = Enum.map(messages, fn
-      message when is_bitstring(message) ->
-        %{message_body: Parser.encode_message_body(message)}
-      message when is_list(message) ->
-        Parser.encode_message_body(message) |> Map.new()
-    end)
+    messages =
+      Enum.map(messages, fn
+        message when is_bitstring(message) ->
+          %{message_body: Parser.encode_message_body(message)}
+
+        message when is_list(message) ->
+          Parser.encode_message_body(message) |> Map.new()
+      end)
+
     params = %{messages: messages}
     operation(queue_url, "BatchSendMessage", params: params)
   end
@@ -61,7 +69,8 @@ defmodule ExAliyun.MNS.Queue do
     operation(queue_url, "DeleteMessage", params: params)
   end
 
-  @spec batch_delete_message(queue_url :: String.t(), receipt_handles :: [String.t()]) :: Operation.t()
+  @spec batch_delete_message(queue_url :: String.t(), receipt_handles :: [String.t()]) ::
+          Operation.t()
   def batch_delete_message(queue_url, receipt_handles) do
     params = %{receipt_handles: receipt_handles}
     operation(queue_url, "BatchDeleteMessage", params: params)
@@ -79,12 +88,19 @@ defmodule ExAliyun.MNS.Queue do
     operation(queue_url, "PeekMessage", params: params)
   end
 
-  @spec change_message_visibility(queue_url :: String.t(), receipt_handle :: String.t(), visibility_timeout :: integer()) :: Operation.t()
+  @spec change_message_visibility(
+          queue_url :: String.t(),
+          receipt_handle :: String.t(),
+          visibility_timeout :: integer()
+        ) :: Operation.t()
   def change_message_visibility(queue_url, receipt_handle, visibility_timeout) do
-    operation(queue_url, "ChangeMessageVisibility", params: %{receipt_handle: receipt_handle, visibility_timeout: visibility_timeout})
+    operation(queue_url, "ChangeMessageVisibility",
+      params: %{receipt_handle: receipt_handle, visibility_timeout: visibility_timeout}
+    )
   end
 
   defp operation(queue_url, action, opts \\ [])
+
   defp operation(nil, action, opts) do
     %Operation{
       action: action,
@@ -95,11 +111,11 @@ defmodule ExAliyun.MNS.Queue do
 
   defp operation(queue_url, action, opts) do
     params = Map.put(opts[:params] || %{}, :queue_url, queue_url)
+
     %Operation{
       action: action,
       params: params,
       headers: opts[:headers]
     }
   end
-
 end

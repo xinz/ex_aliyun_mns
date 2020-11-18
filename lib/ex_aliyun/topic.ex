@@ -62,9 +62,12 @@ defmodule ExAliyun.MNS.Topic do
     operation(topic_url, "SetSubscriptionAttributes", params: params)
   end
 
-  @spec get_subscription_attributes(topic_url :: String.t(), subscription_name :: String.t()) :: Operation.t()
+  @spec get_subscription_attributes(topic_url :: String.t(), subscription_name :: String.t()) ::
+          Operation.t()
   def get_subscription_attributes(topic_url, subscription_name) do
-    operation(topic_url, "GetSubscriptionAttributes", params: %{subscription_name: subscription_name})
+    operation(topic_url, "GetSubscriptionAttributes",
+      params: %{subscription_name: subscription_name}
+    )
   end
 
   @spec unsubscribe(topic_url :: String.t(), subscription_name :: String.t()) :: Operation.t()
@@ -78,12 +81,14 @@ defmodule ExAliyun.MNS.Topic do
     operation(topic_url, "ListSubscriptions", headers: headers)
   end
 
-  @spec publish_message(topic_url :: String.t(), message_body :: String.t(), opts :: Keyword.t()) :: Operation.t()
+  @spec publish_message(topic_url :: String.t(), message_body :: String.t(), opts :: Keyword.t()) ::
+          Operation.t()
   def publish_message(topic_url, message_body, opts \\ []) do
     params =
       opts
       |> Map.new()
       |> transfer_publish_message_params(message_body)
+
     operation(topic_url, "PublishMessage", params: params)
   end
 
@@ -91,6 +96,7 @@ defmodule ExAliyun.MNS.Topic do
     # `message_attributes` is only used for SMS or Email.
     Map.put(map, :message_body, filter_maybe_invalid_cdata(message_body))
   end
+
   defp transfer_publish_message_params(map, message_body) do
     Map.put(map, :message_body, Parser.encode_message_body(message_body))
   end
@@ -116,6 +122,7 @@ defmodule ExAliyun.MNS.Topic do
   end
 
   defp filter_maybe_invalid_cdata(nil), do: nil
+
   defp filter_maybe_invalid_cdata(message_body) do
     # Refer https://en.wikipedia.org/wiki/CDATA#Nesting
     String.replace(message_body, "]]>", "]]]]><![CDATA[>")

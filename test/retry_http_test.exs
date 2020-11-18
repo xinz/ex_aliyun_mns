@@ -5,16 +5,20 @@ defmodule ExAliyunMNSTest.RetryHttp do
 
   test "mock a timeout failed case" do
     queue_name = "tmp_test_fake"
+
     opts = [
       access_key_id: "fake",
       access_key_secret: "fake",
       host: "https://12312316164072.mns.cn-shenzhen.aliyuncs.com"
     ]
+
     start_timestamp = Timex.to_unix(Timex.now())
+
     res =
       queue_name
-      |> MNS.Queue.create([]) 
-      |> MNS.request(opts, [timeout: 1])
+      |> MNS.Queue.create([])
+      |> MNS.request(opts, timeout: 1)
+
     end_timestamp = Timex.to_unix(Timex.now())
     # Currently, Tesla/Finch adapter will return the timeout error as a format string.
     assert res == {:error, :timeout} or res == {:error, "timeout"}
