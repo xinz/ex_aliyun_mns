@@ -12,7 +12,7 @@ defmodule ExAliyun.MNS.Application do
 
   defp child_spec() do
     app = Application.get_application(__MODULE__)
-    host = Application.get_env(app, :host)
+    host = Application.get_env(app, :host, :default)
 
     pool_size = Application.get_env(app, :pool_size, 100)
     pool_count = Application.get_env(app, :pool_count, 1)
