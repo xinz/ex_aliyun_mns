@@ -47,7 +47,7 @@ defmodule ExAliyun.MNS.Http.Middleware do
   end
 
   defp now() do
-    Timex.format!(Timex.now(), "%a, %d %b %Y %H:%M:%S GMT", :strftime)
+    Timex.lformat!(Timex.now(), "%a, %d %b %Y %H:%M:%S GMT", "en", :strftime)
   end
 
   defp extract_host(host) do
