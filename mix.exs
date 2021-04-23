@@ -49,9 +49,7 @@ defmodule ExAliyun.MNS.MixProject do
     [
       main: "readme",
       formatter_opts: [gfm: true],
-      extras: [
-        "README.md"
-      ]
+      extras: ["README.md"]
     ]
   end
 end
