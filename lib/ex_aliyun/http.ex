@@ -30,7 +30,14 @@ defmodule ExAliyun.MNS.Http.Middleware do
     uri = extract_uri(env, config)
     mns_headers_str = extract_mns_headers([mns_version_header() | env.headers])
     str_to_sign = "#{method}\n\n#{@content_type}\n#{date}\n#{mns_headers_str}\n#{uri}"
-    Base.encode64(:crypto.hmac(:sha, config.access_key_secret, str_to_sign))
+    Base.encode64(hmac_fun(:sha, config.access_key_secret).(str_to_sign))
+  end
+
+  # TODO: remove when we require OTP 22.1
+  if Code.ensure_loaded?(:crypto) and function_exported?(:crypto, :mac, 4) do
+    defp hmac_fun(digest, key), do: &:crypto.mac(:hmac, digest, key, &1)
+  else
+    defp hmac_fun(digest, key), do: &:crypto.hmac(digest, key, &1)
   end
 
   defp mns_version_header() do
