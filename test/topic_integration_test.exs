@@ -7,14 +7,35 @@ defmodule ExAliyunMNSTest.Topic.Integration do
 
   setup_all do
     {:ok, %{body: %{"topic_url" => topic_url}}} = MNS.create_topic(@topic_name)
+    {:ok, %{body: %{"topic_url" => _}}} = MNS.create_topic(@topic_name <> "-1")
+    {:ok, %{body: %{"topic_url" => _}}} = MNS.create_topic(@topic_name <> "-2")
 
     on_exit(fn ->
       MNS.delete_topic(topic_url)
+      MNS.delete_topic(topic_url <> "-1")
+      MNS.delete_topic(topic_url <> "-2")
     end)
 
     Process.sleep(2_000)
 
-    {:ok, topic_url: topic_url}
+    {:ok, topic_url: topic_url, topic_name_prefix: "exaliyunmns"}
+  end
+
+  test "list topics", context do
+    {:ok, resp} = MNS.list_topics(topic_name_prefix: "none")
+    assert topic_size(resp) == 0
+
+    topic_name_prefix = context[:topic_name_prefix]
+    {:ok, resp} = MNS.list_topics(topic_name_prefix: topic_name_prefix)
+    assert topic_size(resp) == 3
+    {:ok, resp} = MNS.list_topics(topic_name_prefix: topic_name_prefix, number: 1)
+    assert topic_size(resp) == 1
+    next_marker = Map.get(resp.body, "Topics") |> Map.get("NextMarker")
+    {:ok, resp} = MNS.list_topics(topic_name_prefix: topic_name_prefix, marker: next_marker)
+    assert topic_size(resp) == 2
+
+    {:ok, resp} = MNS.list_topics(topic_name_prefix: @topic_name <> "-1")
+    assert topic_size(resp) == 1
   end
 
   test "manage topic", context do
@@ -31,26 +52,19 @@ defmodule ExAliyunMNSTest.Topic.Integration do
 
     topic_items = Map.get(response.body, "Topics") |> Map.get("Topic")
 
-    cond do
-      is_map(topic_items) ->
-        assert Map.get(topic_items, "TopicName") == @topic_name and
-                 Map.get(topic_items, "LoggingEnabled") == "True"
+    matched =
+      Enum.find(topic_items, fn topic ->
+        Map.get(topic, "TopicName") == @topic_name and
+          Map.get(topic, "LoggingEnabled") == "True"
+      end)
 
-      is_list(topic_items) ->
-        matched =
-          Enum.find(topic_items, fn topic ->
-            Map.get(topic, "TopicName") == @topic_name and
-              Map.get(topic, "LoggingEnabled") == "True"
-          end)
-
-        assert matched != nil
-    end
+    assert matched != nil
   end
 
   test "subscribe with queue endpoint and unsubscribe", context do
     topic_url = context[:topic_url]
     subscription_name = "test-subname"
-    endpoint = "acs:mns:cn-shenzhen:1570283091764072:queues/exaliyunmns"
+    endpoint = queue_endpoint("exaliyunmns")
     {:ok, _response} = MNS.subscribe(topic_url, subscription_name, endpoint)
 
     notify_strategy = "BACKOFF_RETRY"
@@ -69,14 +83,14 @@ defmodule ExAliyunMNSTest.Topic.Integration do
     {:ok, response} = MNS.list_subscriptions(topic_url)
 
     # Empty subscriptions
-    assert Map.get(response.body, "Subscriptions") == %{}
+    assert subscription_size(response) == 0
   end
 
   test "list subscriptions", context do
     topic_url = context[:topic_url]
 
     sub_list = ["tmp-subname1", "tmp-subname2", "tmp-subname3"]
-    endpoint = "acs:mns:cn-shenzhen:1570283091764072:queues/exaliyunmns"
+    endpoint = queue_endpoint("exaliyunmns")
 
     Enum.map(sub_list, fn subscription_name ->
       MNS.subscribe(topic_url, subscription_name, endpoint)
@@ -87,8 +101,10 @@ defmodule ExAliyunMNSTest.Topic.Integration do
     next_marker = Map.get(response.body, "Subscriptions") |> Map.get("NextMarker")
 
     sub1_name =
-      Map.get(response.body, "Subscriptions")
+      response.body
+      |> Map.get("Subscriptions")
       |> Map.get("Subscription")
+      |> hd()
       |> Map.get("SubscriptionName")
 
     {:ok, response} = MNS.list_subscriptions(topic_url, marker: next_marker)
@@ -109,6 +125,20 @@ defmodule ExAliyunMNSTest.Topic.Integration do
     {:ok, response} = MNS.list_subscriptions(topic_url)
 
     # Empty subscriptions
-    assert Map.get(response.body, "Subscriptions") == %{}
+    assert subscription_size(response) == 0
+  end
+
+  defp topic_size(response) do
+    Map.get(response.body, "Topics") |> Map.get("Topic") |> length()
+  end
+
+  defp subscription_size(response) do
+    Map.get(response.body, "Subscriptions") |> Map.get("Subscription") |> length()
+  end
+
+  defp queue_endpoint(queue_name) do
+    url = Application.get_env(:ex_aliyun_mns, :host) |> URI.parse()
+    [id, "mns", region, "aliyuncs", "com"] = String.split(url.host, ".")
+    "acs:mns:#{region}:#{id}:queues/#{queue_name}"
   end
 end

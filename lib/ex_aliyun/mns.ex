@@ -44,6 +44,46 @@ defmodule ExAliyun.MNS do
   end
 
   @type result :: {:ok, map()} | {:error, map()} | {:error, term()}
+  @type opts :: Keyword.t()
+  @typedoc """
+  queue name
+
+  example: `"xxx-q"`
+  """
+  @type queue_name :: String.t()
+  @typedoc """
+  url for queue
+
+  example: `"/queues/xxx-q"`
+  """
+  @type queue_url :: String.t()
+  @typedoc """
+  subscription name
+
+  example: `"xxx-s"`
+  """
+  @type subscription_name :: String.t()
+  @typedoc """
+  topic name
+
+  example: `"xxx-t"`
+  """
+  @type topic_name :: String.t()
+  @typedoc """
+  url for topic
+
+  example: `"/topics/xxx-t"`
+  """
+  @type topic_url :: String.t()
+
+  @type batch_messages :: [batch_message]
+  @type batch_message ::
+          String.t()
+          | [
+              {:message_body, String.t()},
+              {:delay_seconds, 0..604_800},
+              {:priority, 1..16}
+            ]
 
   @doc """
   Send HTTP request, NO need to directly call this function by default.
@@ -92,7 +132,7 @@ defmodule ExAliyun.MNS do
     * `:polling_wait_seconds`, optional, the valid value range in 0..30 seconds, by default is 0 second;
     * `:logging_enabled`, optional, whether to enable MNS server logging, by default is false.
   """
-  @spec create_queue(queue_name :: String.t(), opts :: Keyword.t()) :: result
+  @spec create_queue(queue_name, opts) :: result
   def create_queue(queue_name, opts \\ []) do
     {config_overrides, opts} = Keyword.pop(opts, :config_overrides, [])
     Queue.create(queue_name, opts) |> request(config_overrides)
@@ -115,7 +155,7 @@ defmodule ExAliyun.MNS do
     * `:polling_wait_seconds`, optional, the valid value range in 0..30 seconds, by default is 0 second;
     * `:logging_enabled`, optional, whether to enable MNS server logging, by default is false.
   """
-  @spec set_queue_attributes(queue_url :: String.t(), opts :: Keyword.t()) :: result
+  @spec set_queue_attributes(queue_url, opts) :: result
   def set_queue_attributes(queue_url, opts \\ []) do
     {config_overrides, opts} = Keyword.pop(opts, :config_overrides, [])
     Queue.set_queue_attributes(queue_url, opts) |> request(config_overrides)
@@ -130,7 +170,7 @@ defmodule ExAliyun.MNS do
 
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details.
   """
-  @spec get_queue_attributes(queue_url :: String.t(), opts :: Keyword.t()) :: result
+  @spec get_queue_attributes(queue_url, opts) :: result
   def get_queue_attributes(queue_url, opts \\ []) do
     config_overrides = Keyword.get(opts, :config_overrides, [])
     Queue.get_queue_attributes(queue_url) |> request(config_overrides)
@@ -148,10 +188,19 @@ defmodule ExAliyun.MNS do
     * `:number`, optional, maximum number of results returned for a single request, the valid value range in 1..1000, by default is 1000;
     * `:marker`, optional, a similar pagination cursor when list a large queues list, which is acquired from the `NextMarker` returned in the previous request.
   """
-  @spec list_queues(opts :: Keyword.t()) :: result
+  @spec list_queues(opts) :: result
   def list_queues(opts \\ []) do
     {config_overrides, opts} = Keyword.pop(opts, :config_overrides, [])
-    Queue.list_queues(opts) |> request(config_overrides)
+
+    Queue.list_queues(opts)
+    |> request(config_overrides)
+    |> case do
+      {:ok, %{status: 200, body: %{"Queues" => %{"Queue" => _}} = body} = env} ->
+        {:ok, %{env | body: update_in(body, ["Queues", "Queue"], &List.wrap/1)}}
+
+      {:ok, %{status: 200, body: %{"Queues" => %{}} = body} = env} ->
+        {:ok, %{env | body: %{body | "Queues" => %{"Queue" => []}}}}
+    end
   end
 
   @doc """
@@ -163,7 +212,7 @@ defmodule ExAliyun.MNS do
 
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details.
   """
-  @spec delete_queue(queue_url :: String.t(), opts :: Keyword.t()) :: result
+  @spec delete_queue(queue_url, opts) :: result
   def delete_queue(queue_url, opts \\ []) do
     config_overrides = Keyword.get(opts, :config_overrides, [])
     Queue.delete(queue_url) |> request(config_overrides)
@@ -180,20 +229,11 @@ defmodule ExAliyun.MNS do
     * `:delay_seconds`, optional, message sent to the queue can be consumed after `delay_seconds` seconds, the valid value range in 0..604800 (7 days), by default is 0 second;
     * `:priority`
   """
-  @spec send_message(queue_url :: String.t(), message_body :: String.t(), opts :: Keyword.t()) ::
-          result
+  @spec send_message(queue_url, message_body :: String.t(), opts) :: result
   def send_message(queue_url, message_body, opts \\ []) do
     {config_overrides, opts} = Keyword.pop(opts, :config_overrides, [])
     Queue.send_message(queue_url, message_body, opts) |> request(config_overrides)
   end
-
-  @type mns_batch_message ::
-          String.t()
-          | [
-              {:message_body, String.t()},
-              {:delay_seconds, 0..604_800},
-              {:priority, 1..16}
-            ]
 
   @doc """
   Send up to 16 messages to a MNS Queue in a single request.
@@ -204,7 +244,7 @@ defmodule ExAliyun.MNS do
 
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details.
   """
-  @spec batch_send_message(queue_url :: String.t(), messages :: [mns_batch_message]) :: result
+  @spec batch_send_message(queue_url, batch_messages) :: result
   def batch_send_message(queue_url, messages, opts \\ []) when is_list(messages) do
     config_overrides = Keyword.get(opts, :config_overrides, [])
     Queue.batch_send_message(queue_url, messages) |> request(config_overrides)
@@ -219,8 +259,7 @@ defmodule ExAliyun.MNS do
 
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details.
   """
-  @spec delete_message(queue_url :: String.t(), receipt_handle :: String.t(), opts :: Keyword.t()) ::
-          result
+  @spec delete_message(queue_url, receipt_handle :: String.t(), opts) :: result
   def delete_message(queue_url, receipt_handle, opts \\ []) do
     config_overrides = Keyword.get(opts, :config_overrides, [])
     Queue.delete_message(queue_url, receipt_handle) |> request(config_overrides)
@@ -235,11 +274,7 @@ defmodule ExAliyun.MNS do
 
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details.
   """
-  @spec batch_delete_message(
-          queue_url :: String.t(),
-          receipt_handles :: [String.t()],
-          opts :: Keyword.t()
-        ) :: result
+  @spec batch_delete_message(queue_url, receipt_handles :: [String.t()], opts) :: result
   def batch_delete_message(queue_url, receipt_handles, opts \\ []) do
     config_overrides = Keyword.get(opts, :config_overrides, [])
     Queue.batch_delete_message(queue_url, receipt_handles) |> request(config_overrides)
@@ -257,7 +292,7 @@ defmodule ExAliyun.MNS do
     if not set this option will use Queue's `polling_wait_seconds` attribute (see `create_queue/2`) as default.
     * `:number`, optional, receive up to 16 messages ([doc](https://help.aliyun.com/document_detail/35137.html)) from a MNS Queue in a single request, by default as 1.
   """
-  @spec receive_message(queue_url :: String.t(), opts :: Keyword.t()) :: result
+  @spec receive_message(queue_url, opts) :: result
   def receive_message(queue_url, opts \\ []) do
     {config_overrides, opts} = Keyword.pop(opts, :config_overrides, [])
     Queue.receive_message(queue_url, opts) |> request(config_overrides)
@@ -273,7 +308,7 @@ defmodule ExAliyun.MNS do
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details;
     * `:number`, optional, maximum number of messages can be viewed for the current operation ([see BatchPeekMessage doc](https://www.alibabacloud.com/help/doc-detail/35141.htm)), the default number is 1, the maximum number is 16.
   """
-  @spec peek_message(queue_url :: String.t(), opts :: Keyword.t()) :: result
+  @spec peek_message(queue_url, opts) :: result
   def peek_message(queue_url, opts \\ []) do
     {config_overrides, opts} = Keyword.pop(opts, :config_overrides, [])
     Queue.peek_message(queue_url, opts) |> request(config_overrides)
@@ -289,10 +324,10 @@ defmodule ExAliyun.MNS do
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details.
   """
   @spec change_message_visibility(
-          queue_url :: String.t(),
+          queue_url,
           receipt_handle :: String.t(),
           visibility_timeout :: integer(),
-          opts :: Keyword.t()
+          opts
         ) :: result
   def change_message_visibility(queue_url, receipt_handle, visibility_timeout, opts \\ []) do
     config_overrides = Keyword.get(opts, :config_overrides, [])
@@ -312,7 +347,7 @@ defmodule ExAliyun.MNS do
     * `:maximum_message_size`, optional, maximum body length of a message sent to the queue, measured in bytes, by default is 65536 (64 KB);
     * `:logging_enabled`, optional, whether to enable MNS server logging, by default is false.
   """
-  @spec create_topic(topic_name :: String.t(), opts :: Keyword.t()) :: result
+  @spec create_topic(topic_name, opts) :: result
   def create_topic(topic_name, opts \\ []) do
     {config_overrides, opts} = Keyword.pop(opts, :config_overrides, [])
     Topic.create(topic_name, opts) |> request(config_overrides)
@@ -329,7 +364,7 @@ defmodule ExAliyun.MNS do
     * `:maximum_message_size`, optional, maximum body length of a message sent to the queue, measured in bytes, by default is 65536 (64 KB);
     * `:logging_enabled`, optional, whether to enable MNS server logging, by default is false.
   """
-  @spec set_topic_attributes(topic_url :: String.t(), opts :: Keyword.t()) :: result
+  @spec set_topic_attributes(topic_url, opts) :: result
   def set_topic_attributes(topic_url, opts) do
     {config_overrides, opts} = Keyword.pop(opts, :config_overrides, [])
 
@@ -345,7 +380,7 @@ defmodule ExAliyun.MNS do
 
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details.
   """
-  @spec get_topic_attributes(topic_url :: String.t()) :: result
+  @spec get_topic_attributes(topic_url, opts) :: result
   def get_topic_attributes(topic_url, opts \\ []) do
     config_overrides = Keyword.get(opts, :config_overrides, [])
 
@@ -361,7 +396,7 @@ defmodule ExAliyun.MNS do
 
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details.
   """
-  @spec delete_topic(topic_url :: String.t()) :: result
+  @spec delete_topic(topic_url, opts) :: result
   def delete_topic(topic_url, opts \\ []) do
     config_overrides = Keyword.get(opts, :config_overrides, [])
 
@@ -380,10 +415,19 @@ defmodule ExAliyun.MNS do
     * `:number`, optional, maximum number of results returned for a single request, the valid value range in 1..1000, by default is 1000;
     * `:marker`, optional, a similar pagination cursor when list a large topics list, which is acquired from the `NextMarker` returned in the previous request.
   """
-  @spec list_topics(opts :: Keyword.t()) :: result
+  @spec list_topics(opts) :: result
   def list_topics(opts \\ []) do
     {config_overrides, opts} = Keyword.pop(opts, :config_overrides, [])
-    Topic.list_topics(opts) |> request(config_overrides)
+
+    Topic.list_topics(opts)
+    |> request(config_overrides)
+    |> case do
+      {:ok, %{status: 200, body: %{"Topics" => %{"Topic" => _}} = body} = env} ->
+        {:ok, %{env | body: update_in(body, ["Topics", "Topic"], &List.wrap/1)}}
+
+      {:ok, %{status: 200, body: %{"Topics" => %{}} = body} = env} ->
+        {:ok, %{env | body: %{body | "Topics" => %{"Topic" => []}}}}
+    end
   end
 
   @doc """
@@ -398,12 +442,7 @@ defmodule ExAliyun.MNS do
     * `:notify_strategy`, optional, `"BACKOFF_RETRY"` or `"EXPONENTIAL_DECAY_RETRY"`, as `"BACKOFF_RETRY"` by default;
     * `:notify_content_format`, optional, `"XML"`, `"JSON"`, or `"SIMPLIFIED"`, as `"XML"` by default
   """
-  @spec subscribe(
-          topic_url :: String.t(),
-          subscription_name :: String.t(),
-          endpoint :: String.t(),
-          opts :: Keyword.t()
-        ) :: result
+  @spec subscribe(topic_url, subscription_name, endpoint :: String.t(), opts) :: result
   def subscribe(topic_url, subscription_name, endpoint, opts \\ []) do
     {config_overrides, opts} = Keyword.pop(opts, :config_overrides, [])
     Topic.subscribe(topic_url, subscription_name, endpoint, opts) |> request(config_overrides)
@@ -420,10 +459,10 @@ defmodule ExAliyun.MNS do
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details.
   """
   @spec set_subscription_attributes(
-          topic_url :: String.t(),
-          subscription_name :: String.t(),
+          topic_url,
+          subscription_name,
           notify_strategy :: String.t(),
-          opts :: Keyword.t()
+          opts
         ) :: result
   def set_subscription_attributes(topic_url, subscription_name, notify_strategy, opts \\ []) do
     config_overrides = Keyword.get(opts, :config_overrides, [])
@@ -442,11 +481,7 @@ defmodule ExAliyun.MNS do
 
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details.
   """
-  @spec get_subscription_attributes(
-          topic_url :: String.t(),
-          subscription_name :: String.t(),
-          opts :: Keyword.t()
-        ) :: result
+  @spec get_subscription_attributes(topic_url, subscription_name, opts) :: result
   def get_subscription_attributes(topic_url, subscription_name, opts \\ []) do
     config_overrides = Keyword.get(opts, :config_overrides, [])
 
@@ -464,8 +499,7 @@ defmodule ExAliyun.MNS do
 
     * `:config_overrides`, optional, the options in `config_overrides`, please see `request/2` for details.
   """
-  @spec unsubscribe(topic_url :: String.t(), subscription_name :: String.t(), opts :: Keyword.t()) ::
-          result
+  @spec unsubscribe(topic_url, subscription_name, opts) :: result
   def unsubscribe(topic_url, subscription_name, opts \\ []) do
     config_overrides = Keyword.get(opts, :config_overrides, [])
 
@@ -484,11 +518,19 @@ defmodule ExAliyun.MNS do
     * `:number`, optional, maximum number of results returned for a single request, the valid value range in 1..1000, by default is 1000;
     * `:marker`, optional, a similar pagination cursor when list a large subscriptions list, which is acquired from the `NextMarker` returned in the previous request.
   """
-  @spec list_subscriptions(topic_url :: String.t(), opts :: Keyword.t()) :: result
+  @spec list_subscriptions(topic_url, opts) :: result
   def list_subscriptions(topic_url, opts \\ []) do
     {config_overrides, opts} = Keyword.pop(opts, :config_overrides, [])
 
-    Topic.list_subscriptions(topic_url, opts) |> request(config_overrides)
+    Topic.list_subscriptions(topic_url, opts)
+    |> request(config_overrides)
+    |> case do
+      {:ok, %{status: 200, body: %{"Subscriptions" => %{"Subscription" => _}} = body} = env} ->
+        {:ok, %{env | body: update_in(body, ["Subscriptions", "Subscription"], &List.wrap/1)}}
+
+      {:ok, %{status: 200, body: %{"Subscriptions" => %{}} = body} = env} ->
+        {:ok, %{env | body: %{body | "Subscriptions" => %{"Subscription" => []}}}}
+    end
   end
 
   @doc """
@@ -502,11 +544,7 @@ defmodule ExAliyun.MNS do
     * `:message_tag`, optional, a string no more than 16 characters, there is no message tag set by default;
     * `:message_attributes`, optional, a string of message attributes, only be useable for email or SMS push, please see API documents for details.
   """
-  @spec publish_topic_message(
-          topic_url :: String.t(),
-          message_body :: String.t(),
-          opts :: Keyword.t()
-        ) :: result
+  @spec publish_topic_message(topic_url, message_body :: String.t(), opts) :: result
   def publish_topic_message(topic_url, message_body, opts \\ []) do
     {config_overrides, opts} = Keyword.pop(opts, :config_overrides, [])
 
@@ -516,33 +554,19 @@ defmodule ExAliyun.MNS do
   @doc false
   def format_opts_to_headers(opts) do
     Enum.reduce(opts, [], fn {key, value}, acc ->
-      header = format_header(key, value)
-      if header != nil, do: [header | acc], else: acc
+      if header = format_header(key, value) do
+        [header | acc]
+      else
+        acc
+      end
     end)
   end
 
   @doc false
-  defp format_header(:topic_name_prefix, value) do
-    {"x-mns-prefix", "#{value}"}
-  end
-
-  defp format_header(:queue_name_prefix, value) do
-    {"x-mns-prefix", "#{value}"}
-  end
-
-  defp format_header(:subscription_name_prefix, value) do
-    {"x-mns-prefix", "#{value}"}
-  end
-
-  defp format_header(:number, value) do
-    {"x-mns-ret-number", "#{value}"}
-  end
-
-  defp format_header(:marker, value) do
-    {"x-mns-marker", value}
-  end
-
-  defp format_header(_key, _value) do
-    nil
-  end
+  defp format_header(:topic_name_prefix, value), do: {"x-mns-prefix", "#{value}"}
+  defp format_header(:queue_name_prefix, value), do: {"x-mns-prefix", "#{value}"}
+  defp format_header(:subscription_name_prefix, value), do: {"x-mns-prefix", "#{value}"}
+  defp format_header(:number, value), do: {"x-mns-ret-number", "#{value}"}
+  defp format_header(:marker, value), do: {"x-mns-marker", value}
+  defp format_header(_key, _value), do: nil
 end

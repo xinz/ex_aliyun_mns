@@ -35,8 +35,7 @@ defmodule ExAliyunMNSTest.PublishMessageToQueue do
 
     subscription_name = "test-subname"
     queue_name = String.split(queue_url, "/") |> List.last()
-
-    endpoint = "acs:mns:cn-shenzhen:1570283091764072:queues/#{queue_name}"
+    endpoint = queue_endpoint(queue_name)
 
     {:ok, _response} =
       MNS.subscribe(topic_url, subscription_name, endpoint, notify_content_format: "SIMPLIFIED")
@@ -68,7 +67,7 @@ defmodule ExAliyunMNSTest.PublishMessageToQueue do
     sub_names =
       Enum.map(queue_urls, fn queue_url ->
         queue_name = String.split(queue_url, "/") |> List.last()
-        endpoint = "acs:mns:cn-shenzhen:1570283091764072:queues/#{queue_name}"
+        endpoint = queue_endpoint(queue_name)
         subscription_name = "#{queue_name}-sub"
 
         {:ok, _} =
@@ -103,5 +102,11 @@ defmodule ExAliyunMNSTest.PublishMessageToQueue do
       MNS.delete_message(queue_url, receipt_handle)
     end)
     |> Enum.to_list()
+  end
+
+  defp queue_endpoint(queue_name) do
+    url = Application.get_env(:ex_aliyun_mns, :host) |> URI.parse()
+    [id, "mns", region, "aliyuncs", "com"] = String.split(url.host, ".")
+    "acs:mns:#{region}:#{id}:queues/#{queue_name}"
   end
 end
