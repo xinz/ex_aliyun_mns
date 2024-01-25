@@ -200,6 +200,9 @@ defmodule ExAliyun.MNS do
 
       {:ok, %{status: 200, body: %{"Queues" => %{}} = body} = env} ->
         {:ok, %{env | body: %{body | "Queues" => %{"Queue" => []}}}}
+
+      other ->
+        other
     end
   end
 
@@ -427,6 +430,9 @@ defmodule ExAliyun.MNS do
 
       {:ok, %{status: 200, body: %{"Topics" => %{}} = body} = env} ->
         {:ok, %{env | body: %{body | "Topics" => %{"Topic" => []}}}}
+
+      other ->
+        other
     end
   end
 
@@ -530,6 +536,9 @@ defmodule ExAliyun.MNS do
 
       {:ok, %{status: 200, body: %{"Subscriptions" => %{}} = body} = env} ->
         {:ok, %{env | body: %{body | "Subscriptions" => %{"Subscription" => []}}}}
+
+      other ->
+        other
     end
   end
 
