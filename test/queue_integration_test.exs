@@ -5,60 +5,6 @@ defmodule ExAliyunMNSTest.Queue.Integration do
 
   alias ExAliyun.MNS
 
-  defp queue_size(response) do
-    queue_items = Map.get(response.body, "Queues") |> Map.get("Queue")
-
-    cond do
-      is_map(queue_items) -> 1
-      is_list(queue_items) -> length(queue_items)
-    end
-  end
-
-  defp request_id(response) do
-    Map.get(response.body, "request_id")
-  end
-
-  defp error_code_and_message(response) do
-    error = Map.get(response.body, "Error")
-    {Map.get(error, "Code"), Map.get(error, "Message")}
-  end
-
-  defp receipt_handles(response) do
-    messages = Map.get(response.body, "Messages")
-
-    cond do
-      is_map(messages) ->
-        {
-          [Map.get(messages, "ReceiptHandle")],
-          [Map.get(messages, "MessageBody")]
-        }
-
-      is_list(messages) ->
-        Enum.reduce(messages, {[], []}, fn message, {acc_rec, acc_mes} ->
-          {
-            [Map.get(message, "ReceiptHandle") | acc_rec],
-            [Map.get(message, "MessageBody") | acc_mes]
-          }
-        end)
-    end
-  end
-
-  defp receive_messages(queue_url, number \\ 1, wait_time_seconds \\ 0) do
-    case MNS.receive_message(queue_url, number: number, wait_time_seconds: wait_time_seconds) do
-      {:ok, response} ->
-        {receipt_handles, messages} = receipt_handles(response)
-
-        Enum.map(receipt_handles, fn receipt_handle ->
-          MNS.delete_message(queue_url, receipt_handle)
-        end)
-
-        messages
-
-      _error ->
-        []
-    end
-  end
-
   setup_all do
     {:ok, %{body: %{"queue_url" => queue_url, "request_id" => _request_id}}} =
       MNS.create_queue(@queue_name)
@@ -294,5 +240,54 @@ defmodule ExAliyunMNSTest.Queue.Integration do
     assert message_from_receive2 == message_from_receive
 
     MNS.delete_message(queue_url, receipt_handle2)
+  end
+
+  defp queue_size(response) do
+    Map.get(response.body, "Queues") |> Map.get("Queue") |> length()
+  end
+
+  defp request_id(response) do
+    Map.get(response.body, "request_id")
+  end
+
+  defp error_code_and_message(response) do
+    error = Map.get(response.body, "Error")
+    {Map.get(error, "Code"), Map.get(error, "Message")}
+  end
+
+  defp receipt_handles(response) do
+    messages = Map.get(response.body, "Messages")
+
+    cond do
+      is_map(messages) ->
+        {
+          [Map.get(messages, "ReceiptHandle")],
+          [Map.get(messages, "MessageBody")]
+        }
+
+      is_list(messages) ->
+        Enum.reduce(messages, {[], []}, fn message, {acc_rec, acc_mes} ->
+          {
+            [Map.get(message, "ReceiptHandle") | acc_rec],
+            [Map.get(message, "MessageBody") | acc_mes]
+          }
+        end)
+    end
+  end
+
+  defp receive_messages(queue_url, number \\ 1, wait_time_seconds \\ 0) do
+    case MNS.receive_message(queue_url, number: number, wait_time_seconds: wait_time_seconds) do
+      {:ok, response} ->
+        {receipt_handles, messages} = receipt_handles(response)
+
+        Enum.map(receipt_handles, fn receipt_handle ->
+          MNS.delete_message(queue_url, receipt_handle)
+        end)
+
+        messages
+
+      _error ->
+        []
+    end
   end
 end
