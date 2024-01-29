@@ -1,6 +1,8 @@
 defmodule ExAliyun.MNS.MixProject do
   use Mix.Project
 
+  @source_url "https://github.com/xinz/ex_aliyun_mns"
+
   def project do
     [
       app: :ex_aliyun_mns,
@@ -32,16 +34,19 @@ defmodule ExAliyun.MNS.MixProject do
       {:sax_map, "~> 1.0"},
       {:msgpax, "~> 2.2", only: :test},
       {:jason, "~> 1.2", only: :test},
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false}
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
 
   defp package() do
     [
       files: ["lib", "mix.exs", "README.md", "LICENSE.md"],
-      maintainers: ["Xin Zou"],
+      maintainers: ["Kevin Pan", "Xin Zou"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/xinz/ex_aliyun_mns"}
+      links: %{
+        "GitHub" => @source_url,
+        "Changelog" => "#{@source_url}/blob/master/CHANGELOG.md"
+      }
     ]
   end
 
@@ -49,7 +54,7 @@ defmodule ExAliyun.MNS.MixProject do
     [
       main: "readme",
       formatter_opts: [gfm: true],
-      extras: ["README.md"]
+      extras: ["README.md", "CHANGELOG.md"]
     ]
   end
 end
