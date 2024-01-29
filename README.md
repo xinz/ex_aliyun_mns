@@ -7,14 +7,14 @@
 ```elixir
 def deps do
   [
-    {:ex_aliyun_mns, "~> 0.1"}
+    {:ex_aliyun_mns, "~> 1.0"}
   ]
 end
 ```
 
 ## Configuration
 
-Set the authorization configuration in `config` file as a global setting, e.g.
+Set the authorization configuration in `config` file as a global setting, for example:
 
 ```elixir
 config :ex_aliyun_mns,
@@ -23,7 +23,7 @@ config :ex_aliyun_mns,
   host: "https://xxxx.mns.us-east-1.aliyuncs.com"
 ```
 
-Or, dynamically set or override the authorization configuration when execute operation via `config_overrides` option, e.g.
+Or, dynamically set or override the authorization configuration when execute operation via `config_overrides` option, for example:
 
 ```elixir
 ExAliyun.MNS.create_queue(
