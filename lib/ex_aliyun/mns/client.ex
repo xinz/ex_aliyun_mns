@@ -120,7 +120,7 @@ defmodule ExAliyun.MNS.Client do
     query = format_query([{"numOfMessages", number}, {"waitseconds", wait_time_seconds}])
 
     opts =
-      if wait_time_seconds != nil, do: [timeout: (wait_time_seconds + 2) * 1000], else: http_opts
+      if wait_time_seconds != nil, do: [timeout: (wait_time_seconds + 10) * 1000], else: http_opts
 
     config
     |> new_client(opts)
