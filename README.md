@@ -38,5 +38,4 @@ ExAliyun.MNS.create_queue(
 
 ## Usage
 
-Please refer Alibaba Cloud Message Notification Service [API reference](https://www.alibabacloud.com/help/doc-detail/27477.htm) for details, this library provides the corresponding
-functions via [`ExAliyun.MNS`](https://hexdocs.pm/ex_aliyun_mns/ExAliyun.MNS.html){:target="_blank"} module.
+Please refer Alibaba Cloud Message Notification Service [API reference](https://www.alibabacloud.com/help/doc-detail/27477.htm) for details, this library provides the corresponding functions via [`ExAliyun.MNS`](https://hexdocs.pm/ex_aliyun_mns/ExAliyun.MNS.html) module.
